@@ -3,14 +3,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:weightSum="1"
+    android:background="#040404">
 
-<TextView
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Grid Arena Map"
-        android:textSize="20sp"
+        android:textSize="30sp"
+        android:textColor="#ffffff" />
 
-        />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="425dp">
+
+        <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/gridView1"
+                android:layout_width="fill_parent"
+                android:layout_height="292dp"
+                android:layout_marginLeft="5dp"
+                android:columnWidth="100dp"
+                android:gravity="center"
+                android:numColumns="20"
+                android:stretchMode="columnWidth"
+                android:layout_weight="0.14"
+            android:background="#a99797">
+            </GridView>
+
+    </LinearLayout>
+
 
 </LinearLayout>
