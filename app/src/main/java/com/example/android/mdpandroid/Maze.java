@@ -11,9 +11,9 @@ import android.widget.TextView;
 /**
  * Created by SaiMunLee on 5/2/16.
  */
-public class Maze extends BaseAdapter {
+public class Maze extends BaseAdapter { //BaseAdapter is used to bind data to a view
     private Context context;
-    private final int[] mazeValues;
+    private final int[] mazeValues; //Declare the mazeValues array
 
     //Robot robot = setupRobot();
 
@@ -46,11 +46,11 @@ public class Maze extends BaseAdapter {
             int grid = mazeValues[position];
 
             if (grid==0) {
-                textView.setBackgroundColor(Color.DKGRAY);
+                textView.setBackgroundColor(Color.DKGRAY);  //refer to the arena_maze[] in MainActivity
             } else if (grid==1) {
-                textView.setBackgroundColor(Color.parseColor("#FE9A2E"));
+                textView.setBackgroundColor(Color.parseColor("#FE9A2E"));   //orange color
             } else if (grid==2) {
-                textView.setBackgroundColor(Color.WHITE);
+                textView.setBackgroundColor(Color.WHITE);   //front of the robot
             } else {
 
             }

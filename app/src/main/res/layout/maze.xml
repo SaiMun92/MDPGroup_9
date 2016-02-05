@@ -15,4 +15,5 @@
         >
     </TextView>
     <!--android:background="#6E6E6E" android:text="@+id/label"-->
+    <!--This xml file generates the number on the grid-->
 </LinearLayout>
