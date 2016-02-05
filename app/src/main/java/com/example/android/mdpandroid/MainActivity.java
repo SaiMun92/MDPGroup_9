@@ -36,19 +36,18 @@ public class MainActivity extends AppCompatActivity {
         robot[8] = 42;
         int x = 0;
         for(int i=0; i<arena_maze.length; i++) {    //populate the arena_maze array with data.
-            if(x<9 && i==robot[x]) {                //study this again
+            if(x<9 && i==robot[x]) {                //This is to show the robot on the grid
                 if( x != 5)                         //x=0 i=0 i=robot[0]=0 arena_maze[0]=1
                     arena_maze[i] = 1;              //x=1 i=1 i=robot[1]=1 arena_maze[1]=1
                 else                                //x=2 i=2 i=robot[2]=2 arena_maze[2]=1
                     arena_maze[i] = 2;              //x=3 i=3 i!=robot[3]=20 arena_maze[3]=0
                 x++;                                //x=3 i=4 i!=robot[3]=20 arena_maze[4]=0
             }else {                                 //x=3 i=20 i=robot[3]=20 arena_maze[20]=1   u get the point.
-                arena_maze[i] = 0;                  //0 represents the middle of the robot.
-            }                                       //1 represents the dark grey areas of the robot
+                arena_maze[i] = 0;                  //0 represents the areas not explored by the robot.
+            }                                       //1 represents the the orange part of the robot. (the rest)
         }                                           //2 represents the white part, or the front of the robot.
-        gridView.setAdapter(new Maze(this, arena_maze));
+        gridView.setAdapter(new Maze(this, arena_maze));    //sets a custom adapter in this case the arena_maze to be displayed on the screen.
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -69,10 +68,4 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-
-
-
-
-
 }
