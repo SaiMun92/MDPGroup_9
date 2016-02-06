@@ -1,117 +1,141 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity"
-    android:weightSum="1"
-    android:background="#ffffff">
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Grid Arena Map"
-        android:textSize="30sp"
-        android:textColor="#000000"
-        android:background="#fdfdfd"
-        android:autoText="true" />
-
-
-    <LinearLayout
-        android:orientation="vertical"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="425dp">
-
-        <GridView xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/gridView1"
-                android:layout_width="fill_parent"
-                android:layout_height="128dp"
-                android:columnWidth="100dp"
-                android:gravity="center"
-                android:numColumns="20"
-                android:stretchMode="columnWidth"
-                android:layout_weight="3.65"
-            android:background="#a99797">
-            </GridView>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:id="@+id/F1Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="F1"
-            />
-        <Button
-            android:id="@+id/F2Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="F2"
-            />
-        <Button
-            android:id="@+id/runButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Run"
-            />
-        <Button
-            android:id="@+id/explore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="explore"
-            />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_marginTop="10dp"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_width="300dp"
-        android:layout_height="108dp">
+        tools:context=".MainActivity"
+        android:weightSum="1"
+        android:background="#ffffff">
 
-        <Button
-            android:id="@+id/upButton"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/ic_up_arrow"
-            />
-    </LinearLayout>
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="300dp"
-        android:layout_height="100dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Grid Arena Map"
+            android:textSize="30sp"
+            android:textColor="#000000"
+            android:background="#fdfdfd"
+            android:autoText="true" />
 
-        <Button
-                android:id="@+id/leftButton"
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="425dp">
+
+            <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/gridView1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="128dp"
+                    android:columnWidth="100dp"
+                    android:gravity="center"
+                    android:numColumns="20"
+                    android:stretchMode="columnWidth"
+                    android:layout_weight="3.65"
+                android:background="#a99797">
+                </GridView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/F1Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="F1"
+                />
+            <Button
+                android:id="@+id/F2Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="F2"
+                />
+            <Button
+                android:id="@+id/runButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Run"
+                />
+            <Button
+                android:id="@+id/explore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="explore"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            android:layout_width="300dp"
+            android:layout_height="108dp">
+
+            <Button
+                android:id="@+id/upButton"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:layout_gravity="left"
-                android:background="@drawable/ic_left_arrow"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/ic_up_arrow"
                 />
-        <Button
-            android:id="@+id/downButton"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/ic_down_arrow"
-            />
-        <Button
-            android:id="@+id/rightButton"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity=""
-            android:background="@drawable/ic_right_arrow"
-            />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="300dp"
+            android:layout_height="100dp">
+
+            <Button
+                    android:id="@+id/leftButton"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="left"
+                    android:background="@drawable/ic_left_arrow"
+                    />
+            <Button
+                android:id="@+id/downButton"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/ic_down_arrow"
+                />
+            <Button
+                android:id="@+id/rightButton"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity=""
+                android:background="@drawable/ic_right_arrow"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/message"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Type message here..."
+                android:inputType="textMultiLine"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/sendMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="send"/>
+        </LinearLayout>
     </LinearLayout>
-
-
-</LinearLayout>
+</ScrollView>
