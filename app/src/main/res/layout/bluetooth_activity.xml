@@ -1,28 +1,40 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:weightSum="1">
+    android:orientation="vertical"
+    android:padding="@dimen/activity_vertical_margin">
 
-    <Switch
+    <TextView
+        android:id="@+id/tv_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Bluetooth"
-        android:id="@+id/BluetoothSwitch"
-        android:checked="false"
-        android:layout_weight="0.16" />
-
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="465dp"
-        android:id="@android:id/list"
-        android:layout_gravity="center_horizontal" />
+        android:gravity="center"
+        android:textSize="17sp"
+        android:textColor="#ff0000"
+        android:text="@string/text_bluetooth_off" />
 
     <Button
-        android:layout_width="wrap_content"
+        android:id="@+id/btn_enable"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="New Button"
-        android:id="@+id/buttonConnect"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="0.16" />
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="@string/text_enable" />
+
+    <Button
+        android:id="@+id/btn_view_paired"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:enabled="false"
+        android:text="@string/text_view_paired" />
+
+    <Button
+        android:id="@+id/btn_scan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:enabled="false"
+        android:text="@string/text_scan_devices" />
+
 </LinearLayout>
