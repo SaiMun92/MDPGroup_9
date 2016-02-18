@@ -1,30 +1,36 @@
 package com.example.android.mdpandroid;
 
 import android.app.Activity;
+import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Created by srishtilal on 08/02/16.
  */
-public class BluetoothSettings extends Activity {
+public class BluetoothSettings extends AppCompatActivity {
 
     private final static int REQUEST_ENABLE_BT = 1;
 
     BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     String[] items;
-    ArrayAdapter<String> mArrayAdapter =
-            new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+    private ListView listView;
+    private ArrayList<String> mDeviceList = new ArrayList<String>();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); //oncreate method is to save the data in case u log out and u want to log in back the app again.
         setContentView(R.layout.bluetooth_activity);
+        listView = (ListView) findViewById(R.id.PairedDevicesList);
 
 
         if (mBluetoothAdapter == null) {
@@ -42,8 +48,9 @@ public class BluetoothSettings extends Activity {
             // Loop through paired devices
             for (BluetoothDevice device : pairedDevices) {
                 // Add the name and address to an array adapter to show in a ListView
-                mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-            }
+                mDeviceList.add(device.getName() + "\n" + device.getAddress());
+                listView.setAdapter(new ArrayAdapter<String>(this,
+                        android.R.layout.simple_list_item_1, mDeviceList));            }
         }
 
 

@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:weightSum="1">
 
+    <Switch
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bluetooth"
+        android:id="@+id/BluetoothSwitch"
+        android:checked="false"
+        android:layout_weight="0.16" />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="465dp"
+        android:id="@+id/PairedDevicesList"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Button"
+        android:id="@+id/buttonConnect"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.16" />
 </LinearLayout>
