@@ -14,5 +14,11 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="action_bluetooth">Bluetooth</string>
+    <string name="dialog_message">Bluetooth</string>
+    <string name="dialog_title">Bluetooth is not supported by your device</string>
+    <string name="ok">Okay</string>
+
+
+
 
 </resources>
