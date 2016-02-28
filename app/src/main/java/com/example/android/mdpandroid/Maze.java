@@ -11,25 +11,25 @@ import android.widget.TextView;
 /**
  * Created by SaiMunLee on 5/2/16.
  */
-public class Maze extends BaseAdapter { //BaseAdapter is used to bind data to a view
+public class Maze extends BaseAdapter {
     private Context context;
-    private final int[] mazeValues; //Declare the mazeValues array
+    private final int[] mazeValues;
 
-    //Robot robot = setupRobot();
+    //Robot robotView = setupRobot();
 
     public Maze(Context context, int[] mazeValues) {
-        this.context = context;         //the context of the current state of the application
-        this.mazeValues = mazeValues;   //mazeValues = arena_maze, passed in from MainActivity.java
-    }                                   //gridView.setAdapter(new Maze(this, arena_maze));
+        this.context = context;
+        this.mazeValues = mazeValues;
+    }
 
-    public View getView(int position, View convertView, ViewGroup parent) {     //its ised to populate the grid with the smaller cubes
+    public View getView(int position, View convertView, ViewGroup parent) {
 
-        LayoutInflater inflater = (LayoutInflater) context      //the layoutInflater takes your layout xml files and create different view objects from its contents
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE); //LayoutInflater is used to get the View Object which you define in layout xml.
-                                                                    //its the same as getLayoutInflater()
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
         View gridView;
 
-        if (convertView == null) {  //convertView is used to recycle view if they are not displayed.
+        if (convertView == null) {
 
             gridView = new View(context);
 
@@ -41,18 +41,18 @@ public class Maze extends BaseAdapter { //BaseAdapter is used to bind data to a 
                     .findViewById(R.id.grid_item_label);
 
             //textView.setText("");
-            textView.setText(Integer.toString(position));       //numbering of the cubes
+            textView.setText(Integer.toString(position));
 
             int grid = mazeValues[position];
 
-            if (grid==0) {
-                textView.setBackgroundColor(Color.DKGRAY);  //refer to the arena_maze[] in MainActivity
-            } else if (grid==1) {
-                textView.setBackgroundColor(Color.parseColor("#FE9A2E"));   //orange color
-            } else if (grid==2) {
-                textView.setBackgroundColor(Color.WHITE);   //front of the robot
-            } else {
-
+            if (grid == 0) {
+                textView.setBackgroundColor(Color.DKGRAY); // maze
+            } else if (grid == 1) {
+                textView.setBackgroundColor(Color.parseColor("#FE9A2E")); //robotView
+            } else if (grid == 2) {
+                textView.setBackgroundColor(Color.WHITE); // robotView head
+            } else if (grid == 3){
+                textView.setBackgroundColor(Color.parseColor("#FFFF00")); //obstacles   yelllow color
             }
 
             //int mobile = mobileValues[position];
@@ -65,7 +65,7 @@ public class Maze extends BaseAdapter { //BaseAdapter is used to bind data to a 
     }
 
     @Override
-        public int getCount() {
+    public int getCount() {
         return mazeValues.length;
     }
 
@@ -79,5 +79,4 @@ public class Maze extends BaseAdapter { //BaseAdapter is used to bind data to a 
         return 0;
     }
 }
-
 

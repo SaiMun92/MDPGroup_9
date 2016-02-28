@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="http://schemas.android.com/tools">
     <string name="app_name">MDPAndroid</string>
     <string name="action_settings">Settings</string>
 
@@ -17,6 +17,8 @@
     <string name="dialog_message">Bluetooth</string>
     <string name="dialog_title">Bluetooth is not supported by your device</string>
     <string name="ok">Okay</string>
+
+    <string name="title_connected_to">connected to <xliff:g id="device_name">%1$s</xliff:g></string>
 
 
     <string name="hello_world">Hello world!</string>

@@ -3,17 +3,15 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <TextView
-    android:id="@+id/grid_item_label"
-    android:layout_width="25dp"
-    android:layout_height="25dp"
-    android:layout_marginTop="5px"
-    android:layout_marginRight="5px"
-    android:textSize="15px"
-    android:gravity="center"
+        android:id="@+id/grid_item_label"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="5px"
+        android:layout_marginRight="5px"
+        android:textSize="15px"
+        android:gravity="center"
         >
     </TextView>
-    <!--android:background="#6E6E6E" android:text="@+id/label"-->
-    <!--This xml file generates the number on the grid-->
+<!--android:background="#6E6E6E" android:text="@+id/label"-->
 </LinearLayout>
