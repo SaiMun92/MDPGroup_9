@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+
+
+
+    <PreferenceCategory android:title="Configure F1 and F2">
+
+        <EditTextPreference
+            android:dialogTitle="Configure F1"
+            android:key="edittext_preference1"
+            android:summary=""
+            android:title="@string/title_edittext_preference"
+            android:id="@+id/edittext_preference1"
+            android:text="hello "/>
+
+        <EditTextPreference
+            android:dialogTitle="Configure F2"
+            android:key="edittext_preference2"
+            android:summary=""
+            android:title="@string/title_edittext_preference"
+            android:id="@+id/edittext_preference2"
+            android:text="hello "/>
+
+
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
