@@ -14,10 +14,10 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,12 +40,32 @@ import android.app.FragmentManager;
 import android.hardware.SensorEvent;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
+import android.os.Bundle;
+import android.app.Activity;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.View.OnTouchListener;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import java.util.ArrayList;
+import android.widget.TextView;
+import android.widget.Toolbar;;
+import com.example.android.mdpandroid.JoyStickClass;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class MainActivity extends Activity implements SensorEventListener{
+
+    RelativeLayout layout_joystick;
+    ImageView image_joystick, image_border;
+    TextView textView1, textView2, textView3, textView4, textView5;
+
+    JoyStickClass js;
+
+    // Debugging
+    private static final String TAG = "BluetoothChat";
+    private static final boolean D = true;
 
     // Message types sent from the BluetoothChatService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
@@ -53,161 +73,95 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static final int MESSAGE_WRITE = 3;
     public static final int MESSAGE_DEVICE_NAME = 4;
     public static final int MESSAGE_TOAST = 5;
+
     // Key names received from the BluetoothChatService Handler
     public static final String DEVICE_NAME = "device_name";
     public static final String TOAST = "toast";
-    static final int[] arena_maze = new int[300];
-    static final int[] MAPPING = new int[300];
-    // Debugging
-    private static final String BLUETOOTH_CHAT = "BluetoothChat";
-    private static final boolean TRUE = true;
+
     // Intent request codes
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
     private static final int REQUEST_ENABLE_BT = 3;
-    private static final int mRequestCode = 100;
-    RelativeLayout layout_joystick;
-    JoyStickClass js;
-    // Grid initialization
-    GridView mapView;
-    int robotView[] = new int[9];
-    String robotPosition = "forward";
-    int[][] map = new int[20][15];
-    private String[] drawerListItems;
+
+
+    private SharedPreferences prefs;
+    private boolean autoSelection;
+
+    private String[] drawerListViewItems;
     private DrawerLayout drawerLayout;
     private ListView drawerListView;
     private ActionBarDrawerToggle actionBarDrawerToggle;
+    private static final int mRequestCode = 100;
+
     // Layout Views
     private ListView mConversationView;
     private EditText mOutEditText;
-    private Button sendButton;
-    private ToggleButton toggleButton;
+    private EditText setXCoord;
+    private EditText setYCoord;
+    private Button mSendButton;
+    private Button saveCoord;
+    private ToggleButton t;
     private Button updateMap;
-    private int interval = 10000;
-    private Button exploreButton;
-    private Button runshortestButton;
-    private TextView robotDirection;
+    private Button forwardBtn;
+    private Button rightBtn;
+    private Button leftBtn;
+    private int mInterval = 10000; // 10 seconds
+    private Button exploreBtn;
+    private Button runShortestBtn;
+    private TextView roboDir;
     private ToggleButton tiltToggle;
     private Button f1;
     private Button f2;
+
+
     //tilt sensor flag
     private boolean tilt = false;
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private Sensor mMagnetometer;
+
     private float[] mLastAccelerometer = new float[3];
     private float[] mLastMagnetometer = new float[3];
     private boolean mLastAccelerometerSet = false;
     private boolean mLastMagnetometerSet = false;
+
     private float[] mR = new float[9];
     private float[] mOrientation = new float[3];
+
     private long lastUpdate;
+
     //Handler for Maze
     private Handler mazeHandler;
+
     // Name of the connected device
     private String mConnectedDeviceName = null;
     // Array adapter for the conversation thread
     private ArrayAdapter<String> mConversationArrayAdapter;
-    // The Handler that gets information back from the BluetoothChatService
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MESSAGE_STATE_CHANGE:              //talks about the state of the bluetooth in the "up" button
-                    if (TRUE)
-                        Log.i(BLUETOOTH_CHAT, "MESSAGE_STATE_CHANGE: " + msg.arg1);
-                    switch (msg.arg1) {
-                        case BluetoothService.STATE_CONNECTED:
-                            setStatus(getString(R.string.title_connected_to,mConnectedDeviceName));
-                            mConversationArrayAdapter.clear();
-
-                            break;
-                        case BluetoothService.STATE_CONNECTING:
-                            setStatus("Connecting...");
-                            break;
-                        case BluetoothService.STATE_LISTEN:
-                        case BluetoothService.STATE_NONE:
-                            setStatus("Not connected");
-                            break;
-                    }
-                    break;
-                case MESSAGE_WRITE:
-                    byte[] writeBuf = (byte[]) msg.obj;
-                    // construct a string from the buffer
-                    String writeMessage = new String(writeBuf);
-                    mConversationArrayAdapter.add("Me:  " + writeMessage);  //the message that appears on top of the "send" button
-                    mOutEditText.setText("");
-                    break;
-                case MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;                      //the status of the robotView
-                    // construct a string from the valid bytes in the buffer
-                    String readMessage = new String(readBuf, 0, msg.arg1);
-                    TextView text = (TextView) findViewById(R.id.tb_status);
-
-                    if (readMessage.startsWith(getString(R.string.start_STATUS))) {     //status below the joyStick
-                        text.setText(readMessage);
-                    } else if (readMessage.contains(getString(R.string.robot_status))) {
-                        text.setText(readMessage.substring(11, readMessage.length() - 2));
-                    } else if (readMessage.contains(getString(R.string.map_status))) {
-                        String mazeInfo = readMessage.substring(12, readMessage.length() - 2);
-                        decodeMapInfo(mazeInfo);
-                    } else {
-                        mConversationArrayAdapter.add(mConnectedDeviceName + ": " + readMessage);
-                        switch (readMessage.charAt(1)) {            //5F, 5L, 5R
-                            case 'F':
-                                moveForward();
-                                break;
-                            case 'L':
-                                robotPosition("L");
-                                break;
-                            case 'R':
-                                robotPosition("R");
-                                break;
-                            default:
-                                Log.d(BLUETOOTH_CHAT, "normal text");
-                        }
-                    }
-
-                    break;
-                case MESSAGE_DEVICE_NAME:
-                    // save the connected device's name
-                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-                    Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
-                    break;
-                case MESSAGE_TOAST:
-                    Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    };
     // String buffer for outgoing messages
     private StringBuffer mOutStringBuffer;
     // Local Bluetooth Adapter
     private BluetoothAdapter mBluetoothAdapter = null;
     // Member object for the chat services
     private BluetoothService bTService = null;
-    //Auto Updating of Maze info
-    Runnable mStatusChecker = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                sendMessage("sendArena");
-                mazeHandler.postDelayed(mStatusChecker, interval);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
+
+    // Grid initialization
+    GridView gridView;
+    int robot [] = new int[9];
+    static final int[] arena_maze = new int[300];
+    String robotPos = "forward";
+    int savedXCoord, savedYCoord;
+    static final int[] mapping = new int[300];
+    int[][] mapFromLaptop = new int[20][15];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
 
+
+        /*
         // ----------------------------JoyStick----------------------------------
-        layout_joystick = (RelativeLayout) findViewById(R.id.layout_joystick);
+        layout_joystick = (RelativeLayout)findViewById(R.id.layout_joystick);
 
         js = new JoyStickClass(getApplicationContext()
                 , layout_joystick, R.drawable.image_button);
@@ -215,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         js.setLayoutSize(300, 300);     //yellow circle size
         js.setLayoutAlpha(150);          //color intensity
         js.setStickAlpha(100);           //stick color intensity
-        js.setOffset(50);                //distance from the edge of the yellow circle baka
+        js.setOffset(50);                //distance from the edge of the square baka
         js.setMinimumDistance(80);      // konyoraro bakayaro
 
         layout_joystick.setOnTouchListener(new OnTouchListener() {
@@ -236,53 +190,53 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
                 return true;        //return true when finger is lifted
             }
-        });
+        });  */
 
 
         // -------------------------------Robot & Maze-----------------------------------
 
-        mapView = (GridView) findViewById(R.id.gridView1);
+        gridView = (GridView) findViewById(R.id.gridView1);
 
-        robotView[0] = 0;
-        robotView[1] = 1;
-        robotView[2] = 2;
-        robotView[3] = 20;
-        robotView[4] = 21;
-        robotView[5] = 22;
-        robotView[6] = 40;
-        robotView[7] = 41;
-        robotView[8] = 42;
+        robot[0] = 0;
+        robot[1] = 1;
+        robot[2] = 2;
+        robot[3] = 20;
+        robot[4] = 21;
+        robot[5] = 22;
+        robot[6] = 40;
+        robot[7] = 41;
+        robot[8] = 42;
 
         int x = 0;
-        for (int i = 0; i < arena_maze.length; i++) {//populate the arena_maze array with data.
-            if (x < 9 && i == robotView[x]) {                //This is to show the robotView on the grid
-                if (x != 5)                         //x=0 i=0 i=robotView[0]=0 arena_maze[0]=1
-                    arena_maze[i] = 1;              //x=1 i=1 i=robotView[1]=1 arena_maze[1]=1
-                else                                //x=2 i=2 i=robotView[2]=2 arena_maze[2]=1
-                    arena_maze[i] = 2;              //x=3 i=3 i!=robotView[3]=20 arena_maze[3]=0
-                x++;                                //x=3 i=4 i!=robotView[3]=20 arena_maze[4]=0
-            } else {                                 //x=3 i=20 i=robotView[3]=20 arena_maze[20]=1   u get the point.
-                arena_maze[i] = 0;                  //0 represents the areas not explored by the robotView.
-            }                                       //1 represents the the orange part of the robotView. (the rest)
-        }                                           //2 represents the white part, or the front of the robotView.
+        for(int i=0; i<arena_maze.length; i++) {//populate the arena_maze array with data.
+            if(x<9 && i==robot[x]) {                //This is to show the robot on the grid
+                if( x != 5)                         //x=0 i=0 i=robot[0]=0 arena_maze[0]=1
+                    arena_maze[i] = 1;              //x=1 i=1 i=robot[1]=1 arena_maze[1]=1
+                else                                //x=2 i=2 i=robot[2]=2 arena_maze[2]=1
+                    arena_maze[i] = 2;              //x=3 i=3 i!=robot[3]=20 arena_maze[3]=0
+                x++;                                //x=3 i=4 i!=robot[3]=20 arena_maze[4]=0
+            }else {                                 //x=3 i=20 i=robot[3]=20 arena_maze[20]=1   u get the point.
+                arena_maze[i] = 0;                  //0 represents the areas not explored by the robot.
+            }                                       //1 represents the the orange part of the robot. (the rest)
+        }                                           //2 represents the white part, or the front of the robot.
 
-        mapView.setAdapter(new Maze(this, arena_maze));    //sets a custom adapter in this case the arena_maze to be displayed on the screen.
+        gridView.setAdapter(new Maze(this, arena_maze));    //sets a custom adapter in this case the arena_maze to be displayed on the screen.
 
 
         int mapVal = 0;
         for (int i = 0; i < 20; i++) {      //represents all 300 squares(0-299)
             for (int j = 0; j < 15; j++) {
-                map[i][j] = mapVal;   //i is the row, j is the column
-                MAPPING[i + j * 20] = map[i][j];  //MAPPING[20]=1
+                mapFromLaptop[i][j] = mapVal;   //i is the row, j is the column
+                mapping[i + j * 20] = mapFromLaptop[i][j];  //mapping[20]=1, i'm not sure what this does. will check back later
                 mapVal++;
             }
         }
 
         //Robot head direction
-        robotDirection = (TextView) findViewById(R.id.robotHead);  //the space beside the F1 button
-        robotDirection.setText("Robot Head: " + robotPosition);         //robotPosition indicates the robotView position
+        roboDir = (TextView) findViewById(R.id.robotHead);  //the space beside the F1 button
+        roboDir.setText("Robot Head: " + robotPos);         //robotPos indicates the robot position
 
-        if (TRUE) Log.e(BLUETOOTH_CHAT, "+++ ON CREATE +++");
+        if(D) Log.e(TAG, "+++ ON CREATE +++");
 
         // Get local Bluetooth adapter of the device
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -290,36 +244,43 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // If the adapter is null, then Bluetooth is not supported by device
         if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Bluetooth is not available",Toast.LENGTH_LONG).show();
             finish();
             return;
         }
 
         // --------------------------Navigation Drawer---------------------------------------
-        drawerListItems = getResources().getStringArray(R.array.items);
+        // get list items from strings.xml
+        drawerListViewItems = getResources().getStringArray(R.array.items);
+        // get ListView defined in activity_main.xml
         drawerListView = (ListView) findViewById(R.id.left_drawer); //slide from the left
+        // Set the adapter for the list view
         drawerListView.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_listview_item, drawerListItems));
+                R.layout.drawer_listview_item, drawerListViewItems));
+        // 2. App Icon
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        // 2.1 create ActionBarDrawerToggle
         actionBarDrawerToggle = new ActionBarDrawerToggle(
-                this,
-                drawerLayout,
-                R.drawable.ic_drawer,
-                R.string.drawer_open,
-                R.string.drawer_close
+                this,                  /* host Activity */
+                drawerLayout,         /* DrawerLayout object */
+                R.drawable.ic_drawer,  /* nav drawer icon to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description */
+                R.string.drawer_close  /* "close drawer" description */
         );
 
-        //  Set actionBarDrawerToggle as the DrawerListener
+        // 2.2 Set actionBarDrawerToggle as the DrawerListener
         drawerLayout.setDrawerListener(actionBarDrawerToggle);
-        // just styling only
+        // 2.3 enable and show "up" arrow
+        //getActionBar().setDisplayHomeAsUpEnabled(true);           //the 3 lines at the top left hand corner, not working.
+        // just styling option
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
 
         //------------------Auto and Manual Map Update---------------------------------------
         mazeHandler = new Handler();        //Handler send and process messages
 
-        toggleButton = (ToggleButton) findViewById(R.id.toggle);        //auto manual toggle button
+        t = (ToggleButton)findViewById(R.id.toggle);        //auto manual toggle button
         updateMap = (Button) findViewById(R.id.btn_update);
-        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        t.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {    //make the update button appear when manual mode
                 if (isChecked) {
                     updateMap.setVisibility(View.VISIBLE);
@@ -333,14 +294,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 //SharedPreferences is used to save and retrieve primitive data types: booleans, floats, ints, longs, will persisit even after app is killed
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("toggleButton", toggleButton.isChecked());
+                editor.putBoolean("toggleButton", t.isChecked());
                 editor.commit();
             }
         });
 
         SharedPreferences sharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
-        toggleButton.setChecked(sharedPreferences.getBoolean("toggleButton", false));      //T = toggle button
+        t.setChecked(sharedPreferences.getBoolean("toggleButton", false));      //T = toggle button
 
         updateMap.setOnClickListener(new OnClickListener()      //manual mode when the update button is pressed
         {
@@ -356,20 +317,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         f1.setOnClickListener((new OnClickListener() {
             public void onClick(View v) {
+
+                //String value = getIntent().getStringExtra("f1config");
+                //String f1config = data.getStringExtra("edittext_preference1");
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 String f1configs = prefs.getString("edittext_preference1", "");     //send the predefined string
                 sendMessage(f1configs);
-                Log.d("ble", f1configs);
+                Log.d("ble", f1configs);        //log the screen
+                //sendMessage("hi");
+                //Log.d("haha","hahaha");
+
+
             }
         }));
 
         f2.setOnClickListener((new OnClickListener() {
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
 
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                String f1configs = prefs.getString("edittext_preference2", "");
+                String f1configs= prefs.getString("edittext_preference2","");
                 sendMessage(f1configs);
-                Log.d("ble", f1configs);
+                Log.d("ble",f1configs);
             }
         }));
 
@@ -381,6 +350,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mMagnetometer = mSensorManager
                 .getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         lastUpdate = System.currentTimeMillis();
+    }
+
+    //the stuff inside the nav drawer-> makes it clickable
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            displayView(position);  //position is an int
+        }
     }
 
     @Override
@@ -396,12 +373,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         actionBarDrawerToggle.onConfigurationChanged(newConfig);
     }
 
+
     private void displayView(int position) {
 
         Fragment fragment = null;
 
         switch (position) {
             case 0:     //Set Coordinates
+                /*FragmentManager manager = getFragmentManager();
+                DialogBox newDialog = new DialogBox();
+                newDialog.show(manager, "A new dialog box");*/
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
                 LinearLayout layout = new LinearLayout(this);
                 layout.setOrientation(LinearLayout.HORIZONTAL);
@@ -417,7 +398,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         String xcoord = xcoordinate.getText().toString();
                         String ycoord = ycoordinate.getText().toString();
                         String message = "coordinate (" + xcoordinate.getText().toString() + "," + ycoordinate.getText().toString() + ")";
-                        sendMessage(message);       //sends the position of the robotView over to the computer
+                        sendMessage(message);       //sends the position of the robot over to the computer
                         setRobotPos(Integer.parseInt(xcoord), Integer.parseInt(ycoord));
                         mOutStringBuffer = new StringBuffer("");
                     }
@@ -432,6 +413,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 drawerLayout.closeDrawer(Gravity.LEFT);
                 break;
             case 1:
+                //TextView prefEditText = (TextView) findViewById(R.id.prefEditText);
                 Intent intent = new Intent(this, SetPreferenceActivity.class);  //open the SetPreferenceActivity.java
                 startActivityForResult(intent, mRequestCode);
 
@@ -455,17 +437,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+
     //onStart mean auto pop up and ask do u want to connect
     @Override
     public void onStart() {
         super.onStart();
-        if (TRUE) Log.e(BLUETOOTH_CHAT, "++ ON START ++");
+        if (D) Log.e(TAG, "++ ON START ++");
 
         // Prompt user to turn on bluetooth if it is off
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        } else if (bTService == null) {
+        } else if(bTService == null){
             setUpChat();
             //setCoordinate();
         }
@@ -475,7 +458,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public synchronized void onResume() {
         super.onResume();
-        if (TRUE) Log.e(BLUETOOTH_CHAT, "+ ON RESUME +");
+        if(D) Log.e(TAG, "+ ON RESUME +");
 
         // onResume() when comes back from enabling bluetooth
         if (bTService != null) {
@@ -498,7 +481,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public synchronized void onPause() {
         super.onPause();
-        if (TRUE) Log.e(BLUETOOTH_CHAT, "- ON PAUSE -");
+        if(D) Log.e(TAG, "- ON PAUSE -");
 
         mSensorManager.unregisterListener(this);
     }
@@ -506,7 +489,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onStop() {
         super.onStop();
-        if (TRUE) Log.e(BLUETOOTH_CHAT, "-- ON STOP --");
+        if(D) Log.e(TAG, "-- ON STOP --");
     }
 
     @Override
@@ -518,15 +501,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             stopRepeatingTask();
         }
 
-        if (TRUE)
-            Log.e(BLUETOOTH_CHAT, "--- ON DESTROY ---");
+        if (D)
+            Log.e(TAG, "--- ON DESTROY ---");
     }
 
-    private void setUpChat() {      //send message that you can type to the robotView and send instructions
-        Log.d(BLUETOOTH_CHAT, "setupChat()");     //initialise the buttons to be ready for bluetooth
+    private void setUpChat() {      //send message that you can type to the robot and send instructions
+        Log.d(TAG, "setupChat()");     //initialise the buttons to be ready for bluetooth
 
         // Initialize the array adapter for the conversation thread
-        mConversationArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
+        mConversationArrayAdapter = new ArrayAdapter<String>(this,R.layout.message);
         mConversationView = (ListView) findViewById(R.id.chat_log);
         mConversationView.setAdapter(mConversationArrayAdapter);
 
@@ -534,9 +517,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         bTService = new BluetoothService(this, mHandler);
 
         // Initialize the send button with a listener that listens for click
-        sendButton = (Button) findViewById(R.id.btn_send);
-        sendButton.setEnabled(true);
-        sendButton.setOnClickListener(new OnClickListener() {
+        mSendButton = (Button) findViewById(R.id.btn_send);
+        mSendButton.setEnabled(true);
+        mSendButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 // Send a message using content of the edit text widget
                 TextView view = (TextView) findViewById(R.id.send_message);     //the send message line at the bottom
@@ -552,16 +535,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mOutStringBuffer = new StringBuffer("");
 
         //Initialise Explore and Shortest Path btn
-        exploreButton = (Button) findViewById(R.id.explore);
-        exploreButton.setOnClickListener(new OnClickListener() {
+        exploreBtn = (Button) findViewById(R.id.explore);
+        exploreBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 sendMessage("beginExplore");
             }
         });
 
-        runshortestButton = (Button) findViewById(R.id.runButton);
-        runshortestButton.setOnClickListener(new OnClickListener() {
+        runShortestBtn = (Button) findViewById(R.id.runButton);
+        runShortestBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 sendMessage("beginFastest");
@@ -569,71 +552,151 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
 
         // Initialise the arrow buttons
-        /*forwardBtn = (Button) findViewById(R.id.btn_up);
+        forwardBtn = (Button) findViewById(R.id.rightButton);
         forwardBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 moveForward();
-                sendMessage("5F");
+                sendMessage("f");
             }
         });
 
-        leftBtn = (Button) findViewById(R.id.btn_left);
+        leftBtn = (Button) findViewById(R.id.upButton);
         leftBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 turnLeft();
             }
         });
-        rightBtn = (Button) findViewById(R.id.btn_right);
+        rightBtn = (Button) findViewById(R.id.downButton);
         rightBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 turnRight();
             }
         });
-        */
 
-        tiltToggle = (ToggleButton) findViewById(R.id.tilt_toggle);
+
+        tiltToggle = (ToggleButton)findViewById(R.id.tilt_toggle);
         tiltToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
+                if(isChecked){
                     tilt = true;
-                } else {
+                }else{
                     tilt = false;
                 }
             }
         });
     }
 
-    private void setRobotPos(int xCoordinate, int yCoordinate) {     //set the coordinates of the robotView on the map
-        int cenGrid = xCoordinate + yCoordinate * 20;
+    /*private void setCoordinate(){     //cos the set coordinates have been moved to the nav bar
 
-        robotView[0] = cenGrid - 21;            //robotView takes up 9 squares (0-8)
-        robotView[1] = cenGrid - 20;
-        robotView[2] = cenGrid - 19;
-        robotView[3] = cenGrid - 1;
-        robotView[4] = cenGrid;
-        robotView[5] = cenGrid + 1;
-        robotView[6] = cenGrid + 19;
-        robotView[7] = cenGrid + 20;
-        robotView[8] = cenGrid + 21;
+        saveCoord = (Button) findViewById(R.id.btn_setCoord);
+        saveCoord.setEnabled(true);
+        saveCoord.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView xView = (TextView) findViewById(R.id.xCoord);
+                TextView yView = (TextView) findViewById(R.id.yCoord);
+
+                savedXCoord = Integer.parseInt(xView.getText().toString());
+                savedYCoord = Integer.parseInt(yView.getText().toString());
+
+                String message = "coordinate (" + xView.getText().toString() + "," + yView.getText().toString() + ")";
+
+                sendMessage(message);
+                setRobotPos(savedXCoord, savedYCoord);
+            }
+        });
+
+        setXCoord = (EditText) findViewById(R.id.xCoord);
+        setXCoord.setEnabled(true);
+        setYCoord = (EditText) findViewById(R.id.yCoord);
+        setYCoord.setEnabled(true);
+
+        mOutStringBuffer = new StringBuffer("");
+    }*/
+
+    private void setRobotPos(int xCoordinate, int yCoordinate){     //set the coordinates of the robot on the map
+        int cenGrid = xCoordinate + yCoordinate*20;
+
+        robot[0] = cenGrid - 21;            //robot takes up 9 squares (0-8)
+        robot[1] = cenGrid - 20;
+        robot[2] = cenGrid - 19;
+        robot[3] = cenGrid - 1;
+        robot[4] = cenGrid;
+        robot[5] = cenGrid + 1;
+        robot[6] = cenGrid + 19;
+        robot[7] = cenGrid + 20;
+        robot[8] = cenGrid + 21;
 
         int x = 0;
-        for (int i = 0; i < arena_maze.length; i++) {        //display the robotView on the map -> see Maze.java
-            if (x < 9 && i == robotView[x]) {
-                if (x != 5)
+        for(int i=0; i<arena_maze.length; i++) {        //display the robot on the map -> see Maze.java
+            if(x<9 && i==robot[x]) {
+                if( x != 5)
                     arena_maze[i] = 1;
                 else
-                    arena_maze[i] = 2;
+                    arena_maze[i] = 2;      //robot head
                 x++;
-            } else {
+            }else {
                 arena_maze[i] = 0;
             }
         }
-        mapView.setAdapter(new Maze(this, arena_maze));
+        gridView.setAdapter(new Maze(this, arena_maze));
     }
 
+    private void setRobotPosWithDir(int xCoordinate, int yCoordinate, int robotDirection){
+        int cenGrid = xCoordinate + yCoordinate*20;
+
+        robot[0] = cenGrid - 21;            //robot takes up 9 squares (0-8)
+        robot[1] = cenGrid - 20;
+        robot[2] = cenGrid - 19;
+        robot[3] = cenGrid - 1;
+        robot[4] = cenGrid;
+        robot[5] = cenGrid + 1;
+        robot[6] = cenGrid + 19;
+        robot[7] = cenGrid + 20;
+        robot[8] = cenGrid + 21;
+
+        int x = 0;
+        for(int i=0; i<arena_maze.length; i++) {        //display the robot on the map -> see Maze.java
+            if(x<9 && i==robot[x]) {
+
+                arena_maze[i] = 1;
+
+                if (robotDirection == 0){
+                    arena_maze[robot[1]] = 2;
+                }
+                else if (robotDirection == 90){
+                    arena_maze[robot[5]] = 2;
+                }else if (robotDirection == 180){
+                    arena_maze[robot[7]] = 2;
+                }else if (robotDirection == 270){
+                    arena_maze[robot[3]] = 2;
+                }
+                x++;
+            }
+            else {
+                arena_maze[i] = 0;
+            }
+        }
+        gridView.setAdapter(new Maze(this, arena_maze));
+    }
+
+
+    //Auto Updating of Maze info
+    Runnable mStatusChecker = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                sendMessage("sendArena");
+                mazeHandler.postDelayed(mStatusChecker, mInterval);
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
     private void startRepeatingTask() {
         mStatusChecker.run();           //keep sending the message "sendArena" every 10 seconds
     }   //used for the toggle button
@@ -661,7 +724,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    private final void setStatus(int resId) {       //not sure what is this though
+    private final void setStatus(int resId) {       //status in the action bar
         try {
             final ActionBar actionBar = getActionBar();
             actionBar.setSubtitle(resId);
@@ -679,38 +742,159 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    // The Handler that gets information back from the BluetoothChatService
+    private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_STATE_CHANGE:              //talks about the state of the bluetooth in the "up" button
+                    if (D)
+                        Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
+                    switch (msg.arg1) {
+                        case BluetoothService.STATE_CONNECTED:
+                            setStatus(getString(R.string.title_connected_to,mConnectedDeviceName));
+                            mConversationArrayAdapter.clear();
+
+                            break;
+                        case BluetoothService.STATE_CONNECTING:
+                            setStatus(R.string.title_connecting);
+                            break;
+                        case BluetoothService.STATE_LISTEN:
+                        case BluetoothService.STATE_NONE:
+                            setStatus(R.string.title_not_connected);
+                            break;
+                    }
+                    break;
+                case MESSAGE_WRITE:
+                    byte[] writeBuf = (byte[]) msg.obj;
+                    // construct a string from the buffer
+                    String writeMessage = new String(writeBuf);
+                    mConversationArrayAdapter.add("Me:  " + writeMessage);  //the message that appears on top of the "send" button
+                    mOutEditText.setText("");
+                    break;
+                case MESSAGE_READ:
+                    byte[] readBuf = (byte[]) msg.obj;                      //the status of the robot
+                    // construct a string from the valid bytes in the buffer
+                    String readMessage = new String(readBuf, 0, msg.arg1);
+                    TextView text = (TextView) findViewById(R.id.tb_status);
+
+                    if(readMessage.startsWith(getString(R.string.start_STATUS)))
+                    {
+                        text.setText(readMessage);
+                    }
+                    else if(readMessage.contains(getString(R.string.robot_status))) //status
+                    {
+                        text.setText(readMessage.substring(11,readMessage.length()-2));
+                    }
+                    else if(readMessage.contains("GRID"))
+                    {
+                        String robotInfo = readMessage.substring(5, readMessage.length());
+                        String mapInfo = readMessage.substring(17, readMessage.length());
+                        text.setText(mapInfo);
+                        decodeRobotInfo(robotInfo, mapInfo);
+                        //Log.d(TAG, robotInfo);
+                        //Log.d(TAG, mapInfo);
+                    }
+
+
+//                    else if(readMessage.contains(getString(R.string.map_status)))       //grid
+//                    {
+//                        String mazeInfo = readMessage.substring(12, readMessage.length() - 2);
+//                        decodeMapInfo(mazeInfo);
+//                        text.setText(readMessage);
+//                        Log.d(TAG, readMessage);
+//
+//                    }
+                    else {
+                        mConversationArrayAdapter.add(mConnectedDeviceName + ": " + readMessage);   //chat_log
+                        switch (readMessage.charAt(0)) {            //F, L, R
+                            case 'F':
+                                moveForward();
+                                break;
+                            case 'L':
+                                robotPosition("L");
+                                break;
+                            case 'R':
+                                robotPosition("R");
+                                break;
+                            default:
+                                Log.d(TAG, "normal text");
+                        }
+                    }
+
+                    break;
+                case MESSAGE_DEVICE_NAME:
+                    // save the connected device's name
+                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                    Toast.makeText(getApplicationContext(),"Connected to " + mConnectedDeviceName,Toast.LENGTH_SHORT).show();
+                    break;
+                case MESSAGE_TOAST:
+                    Toast.makeText(getApplicationContext(),msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
+
     // Decoding of hex send over
-    public void decodeMapInfo(String mazeInfo) {
+    public void decodeMapInfo(String mazeInfo){
         ArrayList<Integer> obstaclesArr = new ArrayList<Integer>();
         int obstaclesNum = 0;
-        Log.d(BLUETOOTH_CHAT, mazeInfo);
-        for (int i = 0; i < 75; i++) {
+        Log.d(TAG,mazeInfo);
+        for(int i=0;i<75;i++){
             char gridChar = mazeInfo.charAt(i);
             int hex = Integer.parseInt(String.valueOf(gridChar), 16);
-            if (hex > 0) {
+            if(hex>0)
+            {
                 String bin = String.format("%4s", Integer.toBinaryString(hex)).replace(' ', '0');
-                Log.d(BLUETOOTH_CHAT, "grid:" + i + " bin:" + bin);
-                for (int j = 0; j < 4; j++) {
+                Log.d(TAG, "grid:" + i +" bin:"+bin);
+                for(int j = 0; j<4;j++) {
                     if (Integer.parseInt(String.valueOf(bin.charAt(j))) == 1) {
                         //method to display obstacles
                         obstaclesArr.add(obstaclesNum);
                     }
                     obstaclesNum++;
                 }
-            } else {
-                obstaclesNum += 4;
+            }
+            else{
+                obstaclesNum+=4;
             }
 
         }
         setObstacle(obstaclesArr);
     }
 
+    public void decodeRobotInfo(String robotInfo, String mapInfo){
+
+        List<String> items = Arrays.asList(robotInfo.split("\\s+"));
+        String xcoord = items.get(2);       //first 2 is the grid info
+        String ycoord = items.get(3);
+        String robotDirection = items.get(4);
+
+        setRobotPosWithDir(Integer.parseInt(xcoord), Integer.parseInt(ycoord), Integer.parseInt(robotDirection));
+
+        ArrayList<Integer> obstaclesArr = new ArrayList<Integer>();
+        int obstaclesNum = 0;
+        List<String> obstacles = Arrays.asList(mapInfo.split("\\s+"));
+        for (int i=0;i<300;i++){
+            String obstac = obstacles.get(i);
+            Log.d(TAG, obstac);
+            try {
+                if (Integer.parseInt(obstac) == 1) {
+                    arena_maze[i] = 3;
+                }
+            }
+            catch(NumberFormatException e) {
+
+            }
+        }
+        gridView.setAdapter(new Maze(this, arena_maze));
+    }
     //place the obstacles on the map
-    public void setObstacle(ArrayList<Integer> maze) {
-        Log.d(BLUETOOTH_CHAT, "----------SET OBSTACLE---------");
-        for (int i = 0; i < maze.size(); i++) {
-            for (int j = 0; j < 300; j++) {
-                if (MAPPING[j] == maze.get(i)) {
+    public void setObstacle(ArrayList<Integer> maze){
+        Log.d(TAG, "----------SET OBSTACLE---------");
+        for(int i=0;i<maze.size();i++) {
+            for(int j = 0; j<300; j++){
+                if(mapping[j] == maze.get(i)){
                     arena_maze[j] = 3;          //color the maze yellow
                     break;
                 }
@@ -718,129 +902,131 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        mapView.setAdapter(new Maze(this, arena_maze));
+        gridView.setAdapter(new Maze(this, arena_maze));
     }
 
-    public void robotPosition(String direction) {
+    public void robotPosition(String direction){
 
-        if (robotPosition.equals("forward")) {
-            arena_maze[robotView[5]] = 1;
-        } else if (robotPosition.equals("left")) {
-            arena_maze[robotView[1]] = 1;
-        } else if (robotPosition.equals("right")) {
-            arena_maze[robotView[7]] = 1;
-        } else {
-            arena_maze[robotView[3]] = 1;
+        if(robotPos.equals("forward")){               //to recolor back the robot head from white to orange
+            arena_maze[robot[5]] = 1;
+        }else if(robotPos.equals("left")){
+            arena_maze[robot[1]] = 1;
+        }else if(robotPos.equals("right")){
+            arena_maze[robot[7]] = 1;
+        }else{
+            arena_maze[robot[3]] = 1;
         }
 
-        if (direction.equals("R")) { //Turn right         //the direction in which the robotView is facing
-            if (robotPosition.equals("forward")) {
-                robotPosition = "right";
+        if(direction.equals("R")){ //Turn right         //the direction in which the robot is facing
+            if (robotPos.equals("forward")){
+                robotPos = "right";
 
-            } else if (robotPosition.equals("right")) {
-                robotPosition = "reverse";
+            }else if (robotPos.equals("right")){
+                robotPos = "reverse";
 
-            } else if (robotPosition.equals("reverse")) {
-                robotPosition = "left";
+            }else if (robotPos.equals("reverse")){
+                robotPos = "left";
 
-            } else {
-                robotPosition = "forward";
-
-            }
-        } else if (direction.equals("L")) { //turn left
-            if (robotPosition.equals("forward")) {
-                robotPosition = "left";
-
-            } else if (robotPosition.equals("right")) {
-                robotPosition = "forward";
-
-            } else if (robotPosition.equals("reverse")) {
-                robotPosition = "right";
-
-            } else {
-                robotPosition = "reverse";
+            }else{
+                robotPos= "forward";
 
             }
-        } else if (direction.equals("RV")) { // reverse
-            if (robotPosition.equals("forward")) {
-                robotPosition = "reverse";
-            } else if (robotPosition.equals("right")) {
-                robotPosition = "left";
-            } else if (robotPosition.equals("left")) {
-                robotPosition = "right";
-            } else {
-                robotPosition = "forward";
+        }else if (direction.equals("L")){ //turn left
+            if (robotPos.equals("forward")){
+                robotPos = "left";
+
+            }else if (robotPos.equals("right")){
+                robotPos = "forward";
+
+            }else if (robotPos.equals("reverse")){
+                robotPos = "right";
+
+            }else{
+                robotPos= "reverse";
+
+            }
+        } else if (direction.equals("RV")){ // reverse
+            if (robotPos.equals("forward")){
+                robotPos = "reverse";
+            }else if (robotPos.equals("right")){
+                robotPos = "left";
+            }else if (robotPos.equals("left")){
+                robotPos = "right";
+            }else{
+                robotPos= "forward";
             }
         }
 
-        robotDirection.setText("Robot Head: " + robotPosition);
+        roboDir.setText("Robot Head: " + robotPos);
 
-        if (robotPosition.equals("forward")) {
-            arena_maze[robotView[5]] = 2;
-        } else if (robotPosition.equals("left")) {
-            arena_maze[robotView[1]] = 2;
-        } else if (robotPosition.equals("right")) {
-            arena_maze[robotView[7]] = 2;
-        } else {
-            arena_maze[robotView[3]] = 2;
+        if(robotPos.equals("forward")){
+            arena_maze[robot[5]] = 2;
+        }else if(robotPos.equals("left")){
+            arena_maze[robot[1]] = 2;
+        }else if(robotPos.equals("right")){
+            arena_maze[robot[7]] = 2;
+        }else{
+            arena_maze[robot[3]] = 2;
         }
 
-        mapView.setAdapter(new Maze(this, arena_maze));
+        gridView.setAdapter(new Maze(this, arena_maze));
     }
 
-    public void moveForward() {
-        //robotPosition = "";
-        switch (robotPosition) {
+    public void moveForward(){
+        //robotPos = "";
+        switch(robotPos){
             case "forward":
-                if ((robotView[2] % 20) != 19) {
-                    for (int i = 0; i < 9; i++) {
+                if((robot[2] % 20) != 19)
+                {
+                    for (int i = 0; i < 9; i++)
+                    {
                         if (i % 3 == 0)
-                            arena_maze[robotView[i]] = 0; //arena
-                        robotView[i] = robotView[i] + 1;
-                        arena_maze[robotView[i]] = 1; //robotView body
+                            arena_maze[robot[i]] = 0; //arena
+                        robot[i] = robot[i] + 1;
+                        arena_maze[robot[i]] = 1; //robot body
 
                     }
-                    arena_maze[robotView[5]] = 2; //header
+                    arena_maze[robot[5]] = 2; //header
                 }
 
                 break;
 
             case "right":
-                if (robotView[6] < 280) {
+                if(robot[6] <280){
                     for (int i = 0; i < 9; i++) {
-                        if (i < 3) {
-                            arena_maze[robotView[i]] = 0; //arena
+                        if (i<3) {
+                            arena_maze[robot[i]] = 0; //arena
                         }
-                        robotView[i] = robotView[i] + 20;
-                        arena_maze[robotView[i]] = 1; //robotView body
+                        robot[i] = robot[i] + 20;
+                        arena_maze[robot[i]] = 1; //robot body
                     }
-                    arena_maze[robotView[7]] = 2; //header
+                    arena_maze[robot[7]] = 2; //header
 
                 }
                 break;
             case "left":
-                if (robotView[0] > 20) {
+                if( robot[0] > 20){
                     for (int i = 0; i < 9; i++) {
-                        if (i > 5) {
-                            arena_maze[robotView[i]] = 0; //arena
+                        if (i>5) {
+                            arena_maze[robot[i]] = 0; //arena
                         }
-                        robotView[i] = robotView[i] - 20;
-                        arena_maze[robotView[i]] = 1; //robotView body
+                        robot[i] = robot[i] - 20;
+                        arena_maze[robot[i]] = 1; //robot body
                     }
-                    arena_maze[robotView[1]] = 2; //header
+                    arena_maze[robot[1]] = 2; //header
 
                 }
                 break;
             case "reverse":
-                if ((robotView[0] % 20) != 0) {
+                if( (robot[0] % 20 ) != 0 ){
                     for (int i = 0; i < 9; i++) {
-                        if ((i + 1) % 3 == 0) {
-                            arena_maze[robotView[i]] = 0; //arena
+                        if ( (i+1) %3 == 0) {
+                            arena_maze[robot[i]] = 0; //arena
                         }
-                        robotView[i] = robotView[i] - 1;
-                        arena_maze[robotView[i]] = 1; //robotView body
+                        robot[i] = robot[i] - 1;
+                        arena_maze[robot[i]] = 1; //robot body
                     }
-                    arena_maze[robotView[3]] = 2; //header
+                    arena_maze[robot[3]] = 2; //header
 
                 }
                 break;
@@ -848,27 +1034,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Toast.makeText(getApplicationContext(), "Error Moving", Toast.LENGTH_SHORT).show();
         }
 
-        mapView.setAdapter(new Maze(this, arena_maze));
+        gridView.setAdapter(new Maze(this, arena_maze));
     }
 
-    public void turnRight() {
+    public void turnRight(){
         robotPosition("R");
-        sendMessage("5R");
+        sendMessage("r");
     }
 
-    public void turnLeft() {
+    public void turnLeft(){
         robotPosition("L");
-        sendMessage("5L");
+        sendMessage("l");
     }
 
-    public void moveReverse(View v) {
+    public void moveReverse(View v){
         robotPosition("RV");
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         try {
             TextView text = (TextView) findViewById(R.id.tb_status);
-            if (TRUE) Log.d(BLUETOOTH_CHAT, "onActivityResult " + resultCode);
+            if (D) Log.d(TAG, "onActivityResult " + resultCode);
             switch (requestCode) {
                 case REQUEST_CONNECT_DEVICE_SECURE:
                     // When DeviceListActivity returns with a device to connect
@@ -890,8 +1076,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         //setCoordinate();
                     } else {
                         // Exit the whole application if user does not want to enable
-                        Log.d(BLUETOOTH_CHAT, "Bluetooth not enabled");
-                        Toast.makeText(this, "Bluetooth was not enabled. Leaving Bluetooth Chat.", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Bluetooth not enabled");
+                        Toast.makeText(this, R.string.bt_not_enabled_leaving,Toast.LENGTH_SHORT).show();
                         finish();
                     }
                     break;
@@ -901,13 +1087,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         String f1config = data.getStringExtra("edittext_preference1");
                         String f2config = data.getStringExtra("f2configs");
 
+                        Log.i("hmm-" ,"" + f1config);
+
                     } else {
-                        Log.d(BLUETOOTH_CHAT, "nth to pass back");
+                        Log.d(TAG, "nth to pass back");
                     }
                     break;
             }
 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
         }
     }
 
@@ -923,7 +1112,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.option_menu, menu);
+
         return true;
     }
 
@@ -931,7 +1122,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent serverIntent = null;
         switch (item.getItemId()) {
-            case R.id.action_bluetooth:
+            case R.id.secure_connect_scan:
                 // Launch the DeviceListActivity to see devices and do scan
                 serverIntent = new Intent(this, DeviceListActivity.class);
                 startActivityForResult(serverIntent,REQUEST_CONNECT_DEVICE_INSECURE);
@@ -970,10 +1161,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 float x = mOrientation[2];
                 float y = mOrientation[1];
                 if (Math.abs(x) > Math.abs(y)) {
-                    if (x > 0.5) {
+                    if (x > 0.5 ) {
                         moveForward();
-                        sendMessage("5F");
-                        Log.i(BLUETOOTH_CHAT, "FORWARD");
+                        sendMessage("f");
+                        Log.i(TAG, "FORWARD");
 
                     }
                     if (x < -0.9) {
@@ -982,11 +1173,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 } else {
                     if (y > 0.5) {
                         turnLeft();
-                        Log.i(BLUETOOTH_CHAT, "TURN LEFT");
+                        Log.i(TAG, "TURN LEFT");
                     }
                     if (y < -0.5) {
                         turnRight();
-                        Log.i(BLUETOOTH_CHAT, "TURN RIGHT");
+                        Log.i(TAG, "TURN RIGHT");
                     }
                 }
 
@@ -998,14 +1189,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             return;
         }
 
-    }
-
-    //the stuff inside the nav drawer-> makes it clickable
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            displayView(position);  //position is an int
-        }
     }
 }
 

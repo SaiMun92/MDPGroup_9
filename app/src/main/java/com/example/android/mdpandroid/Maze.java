@@ -48,7 +48,7 @@ public class Maze extends BaseAdapter {
             if (grid == 0) {
                 textView.setBackgroundColor(Color.DKGRAY); // maze
             } else if (grid == 1) {
-                textView.setBackgroundColor(Color.parseColor("#FE9A2E")); //robotView
+                textView.setBackgroundColor(Color.parseColor("#FE9A2E")); //robotView - bright orange
             } else if (grid == 2) {
                 textView.setBackgroundColor(Color.WHITE); // robotView head
             } else if (grid == 3){

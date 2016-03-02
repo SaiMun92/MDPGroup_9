@@ -14,17 +14,6 @@
             android:id="@+id/content_frame"
             android:background="#817575">
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/my_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="#ffffff"
-                android:elevation="4dp"
-                android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
-
-
-
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
@@ -49,15 +38,15 @@
             android:orientation="horizontal">
 
 
-            <RelativeLayout
+            <!--<RelativeLayout
                 android:id="@+id/layout_joystick"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/image_button_bg" >
-            </RelativeLayout>
+            </RelativeLayout>-->
 
-            <!--<LinearLayout
+            <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="200dp">
@@ -94,7 +83,7 @@
                         />
                 </LinearLayout>
 
-            </LinearLayout> -->
+            </LinearLayout>
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -137,13 +126,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/tiltText"
-                    android:paddingTop="50dp"
+                    android:paddingTop="30dp"
                     android:text="Robot Status"
                     />
                 <ListView
                     android:id="@+id/chat_log"
                     android:layout_width="200dp"
-                    android:layout_height="150dp"
+                    android:layout_height="300dp"
                     android:layout_gravity="fill_horizontal"
                     android:layout_below="@+id/robotHead"
                     android:stackFromBottom="true"
@@ -223,8 +212,8 @@
 
                 <TextView
                     android:id="@+id/tb_status"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_width="500dp"
+                    android:layout_height="100dp"
                     android:layout_weight="1"
                     android:text="Status: "
                     android:gravity="center"

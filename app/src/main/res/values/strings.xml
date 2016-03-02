@@ -35,6 +35,8 @@
     <string name="start_STATUS">Status</string>
     <string name="robot_status">status</string>
     <string name="map_status">grid</string>
+    <string name="add_obstacle">ADDOBSTACLE</string>
+    <string name="remove_obstacle">REMOVEOBSTACLE</string>
 
     <!--  DeviceListActivity -->
     <string name="scanning">Scanning for devices...</string>
