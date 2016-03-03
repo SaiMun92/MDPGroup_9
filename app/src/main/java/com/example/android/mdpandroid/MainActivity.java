@@ -788,12 +788,19 @@ public class MainActivity extends Activity implements SensorEventListener{
                     }
                     else if(readMessage.contains("GRID"))
                     {
-                        String robotInfo = readMessage.substring(5, readMessage.length());
-                        String mapInfo = readMessage.substring(17, readMessage.length());
-                        text.setText(mapInfo);
-                        decodeRobotInfo(robotInfo, mapInfo);
-                        //Log.d(TAG, robotInfo);
-                        //Log.d(TAG, mapInfo);
+
+                        //split by space here
+                        //add in array
+                        //use from the number that you want
+//                        List<String> robotInfo = Arrays.asList(readMessage.split("\\s+"));
+//                        List<String> mapInfo = Arrays.asList(readMessage.split("\\s+"));
+//
+//                        String robotInfo = readMessage.substring(5, readMessage.length());
+//                        String mapInfo = readMessage.substring(17, readMessage.length());
+                        text.setText(readMessage);
+                        decodeRobotInfo(readMessage);
+                        Log.d(TAG, readMessage);
+//                        Log.d(TAG, mapInfo);
                     }
 
 
@@ -863,19 +870,23 @@ public class MainActivity extends Activity implements SensorEventListener{
         setObstacle(obstaclesArr);
     }
 
-    public void decodeRobotInfo(String robotInfo, String mapInfo){
+    public void decodeRobotInfo(String Message){
 
-        List<String> items = Arrays.asList(robotInfo.split("\\s+"));
-        String xcoord = items.get(2);       //first 2 is the grid info
-        String ycoord = items.get(3);
-        String robotDirection = items.get(4);
+        List<String> robotInfo = Arrays.asList(Message.split("\\s+"));
+//store first few in map and last few in obstacle
+
+        List<String> obstacles = robotInfo.subList(6, robotInfo.size() - 1);
+
+
+//        List<String> items = Arrays.asList(robotInfo.split("\\s+"));
+        String xcoord = robotInfo.get(3);       //first 2 is the grid info
+        String ycoord = robotInfo.get(4);
+        String robotDirection = robotInfo.get(5);
 
         setRobotPosWithDir(Integer.parseInt(xcoord), Integer.parseInt(ycoord), Integer.parseInt(robotDirection));
 
-        ArrayList<Integer> obstaclesArr = new ArrayList<Integer>();
-        int obstaclesNum = 0;
-        List<String> obstacles = Arrays.asList(mapInfo.split("\\s+"));
-        for (int i=0;i<300;i++){
+//        List<String> obstacles = Arrays.asList(mapInfo.split("\\s+"));
+        for (int i=0;i<obstacles.size()-1;i++){
             String obstac = obstacles.get(i);
             Log.d(TAG, obstac);
             try {
