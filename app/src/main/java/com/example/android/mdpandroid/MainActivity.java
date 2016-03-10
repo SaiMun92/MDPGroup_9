@@ -14,6 +14,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -778,6 +779,7 @@ public class MainActivity extends Activity implements SensorEventListener{
                     // construct a string from the valid bytes in the buffer
                     String readMessage = new String(readBuf, 0, msg.arg1);
                     TextView text = (TextView) findViewById(R.id.tb_status);
+                    text.setMovementMethod(new ScrollingMovementMethod());
 
                     if(readMessage.startsWith(getString(R.string.start_STATUS)))
                     {
@@ -898,7 +900,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 
 
         String gridInfo = robotInfo.get(6);
-        for (int i=0;i<gridInfo.length()-1;i++) {
+        for (int i=0;i<gridInfo.length()-1;i++) {   //get the gridInfo from the robotInfo ArrayList
             obstacleInfo.add(Character.getNumericValue(gridInfo.charAt(i)));
         }
 

@@ -222,8 +222,8 @@
                     android:text="Status: "
                     android:gravity="center"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:transcriptMode="alwaysScroll" />
-
+                    android:maxLines="5"
+                    android:scrollbars = "vertical"/>
             </TableRow>
 
 
