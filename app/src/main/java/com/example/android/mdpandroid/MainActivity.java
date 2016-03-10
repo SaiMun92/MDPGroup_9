@@ -541,7 +541,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         exploreBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("beginExplore/n");
+                sendMessage("beginExplore\n");
             }
         });
 
@@ -549,7 +549,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         runShortestBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("beginFastest/n");
+                sendMessage("beginFastest\n");
             }
         });
 
