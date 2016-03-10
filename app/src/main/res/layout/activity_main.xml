@@ -20,6 +20,7 @@
                 android:layout_height="425dp">
 
                 <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:orientation="vertical"
                     android:id="@+id/gridView1"
                     android:layout_width="fill_parent"
                     android:layout_height="128dp"
@@ -205,6 +206,9 @@
                     android:text="send"/>
 
             </LinearLayout>
+
+
+
             <TableRow
                 android:id="@+id/statusBox"
                 android:layout_width="wrap_content"
@@ -217,10 +221,12 @@
                     android:layout_weight="1"
                     android:text="Status: "
                     android:gravity="center"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:transcriptMode="alwaysScroll" />
 
             </TableRow>
+
+
         </LinearLayout>
 
     <!-- The navigation drawer -->

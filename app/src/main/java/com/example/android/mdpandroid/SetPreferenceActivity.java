@@ -1,10 +1,5 @@
 package com.example.android.mdpandroid;
 
-/**
- * Created by ngshuling on 21/9/15.
- */
-
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;

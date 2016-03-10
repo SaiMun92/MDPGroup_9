@@ -92,6 +92,7 @@ public class MainActivity extends Activity implements SensorEventListener{
     private ListView drawerListView;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private static final int mRequestCode = 100;
+    ArrayList <Integer> obstacleInfo= new ArrayList<Integer>();
 
     // Layout Views
     private ListView mConversationView;
@@ -872,10 +873,17 @@ public class MainActivity extends Activity implements SensorEventListener{
 
     public void decodeRobotInfo(String Message){
 
+        String String1 = Message.substring(0,7);
         List<String> robotInfo = Arrays.asList(Message.split("\\s+"));
 //store first few in map and last few in obstacle
 
         List<String> obstacles = robotInfo.subList(6, robotInfo.size() - 1);
+
+        // string_remainder = []
+        // for x in range(6, endofarray):
+            // add to remainder
+
+
 
 
 //        List<String> items = Arrays.asList(robotInfo.split("\\s+"));
@@ -886,12 +894,19 @@ public class MainActivity extends Activity implements SensorEventListener{
         setRobotPosWithDir(Integer.parseInt(xcoord), Integer.parseInt(ycoord), Integer.parseInt(robotDirection));
 
 //        List<String> obstacles = Arrays.asList(mapInfo.split("\\s+"));
-        for (int i=0;i<obstacles.size()-1;i++){
-            String obstac = obstacles.get(i);
-            Log.d(TAG, obstac);
+
+
+
+        String gridInfo = robotInfo.get(6);
+        for (int i=0;i<gridInfo.length()-1;i++) {
+            obstacleInfo.add(Character.getNumericValue(gridInfo.charAt(i)));
+        }
+
+        for (int j=0;j<obstacleInfo.size()-1;j++){
+            Integer obstac = obstacleInfo.get(j);
             try {
-                if (Integer.parseInt(obstac) == 1) {
-                    arena_maze[i] = 3;
+                if (obstac == 1) {
+                    arena_maze[j] = 3;
                 }
             }
             catch(NumberFormatException e) {
@@ -899,6 +914,8 @@ public class MainActivity extends Activity implements SensorEventListener{
             }
         }
         gridView.setAdapter(new Maze(this, arena_maze));
+        obstacleInfo.clear();
+
     }
     //place the obstacles on the map
     public void setObstacle(ArrayList<Integer> maze){
