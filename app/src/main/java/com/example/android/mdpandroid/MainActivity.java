@@ -805,7 +805,10 @@ public class MainActivity extends Activity implements SensorEventListener{
                         Log.d(TAG, readMessage);
 //                        Log.d(TAG, mapInfo);
                     }
-
+                    else if(readMessage.contains("hex"))
+                    {
+                        text.setText(readMessage);
+                    }
 
 //                    else if(readMessage.contains(getString(R.string.map_status)))       //grid
 //                    {
