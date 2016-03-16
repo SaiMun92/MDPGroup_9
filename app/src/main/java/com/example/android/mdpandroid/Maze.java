@@ -53,6 +53,8 @@ public class Maze extends BaseAdapter {
                 textView.setBackgroundColor(Color.WHITE); // robotView head
             } else if (grid == 3){
                 textView.setBackgroundColor(Color.parseColor("#FFFF00")); //obstacles   yelllow color
+            } else if (grid == 4) {
+                textView.setBackgroundColor(Color.RED); //unexplored
             }
 
             //int mobile = mobileValues[position];

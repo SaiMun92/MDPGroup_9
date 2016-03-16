@@ -13,7 +13,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
@@ -41,28 +40,15 @@ import android.app.FragmentManager;
 import android.hardware.SensorEvent;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
-import android.os.Bundle;
-import android.app.Activity;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toolbar;;
-import com.example.android.mdpandroid.JoyStickClass;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends Activity implements SensorEventListener{
-
-    RelativeLayout layout_joystick;
-    ImageView image_joystick, image_border;
-    TextView textView1, textView2, textView3, textView4, textView5;
-
-    JoyStickClass js;
 
     // Debugging
     private static final String TAG = "BluetoothChat";
@@ -84,24 +70,16 @@ public class MainActivity extends Activity implements SensorEventListener{
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
     private static final int REQUEST_ENABLE_BT = 3;
 
-
-    private SharedPreferences prefs;
-    private boolean autoSelection;
-
     private String[] drawerListViewItems;
     private DrawerLayout drawerLayout;
     private ListView drawerListView;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private static final int mRequestCode = 100;
-    ArrayList <Integer> obstacleInfo= new ArrayList<Integer>();
 
     // Layout Views
     private ListView mConversationView;
     private EditText mOutEditText;
-    private EditText setXCoord;
-    private EditText setYCoord;
     private Button mSendButton;
-    private Button saveCoord;
     private ToggleButton t;
     private Button updateMap;
     private Button forwardBtn;
@@ -130,10 +108,12 @@ public class MainActivity extends Activity implements SensorEventListener{
     private float[] mR = new float[9];
     private float[] mOrientation = new float[3];
 
+
     private long lastUpdate;
 
     //Handler for Maze
     private Handler mazeHandler;
+    private Handler exploreHandler;
 
     // Name of the connected device
     private String mConnectedDeviceName = null;
@@ -159,41 +139,6 @@ public class MainActivity extends Activity implements SensorEventListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-        /*
-        // ----------------------------JoyStick----------------------------------
-        layout_joystick = (RelativeLayout)findViewById(R.id.layout_joystick);
-
-        js = new JoyStickClass(getApplicationContext()
-                , layout_joystick, R.drawable.image_button);
-        js.setStickSize(80, 80);      //red circle size
-        js.setLayoutSize(300, 300);     //yellow circle size
-        js.setLayoutAlpha(150);          //color intensity
-        js.setStickAlpha(100);           //stick color intensity
-        js.setOffset(50);                //distance from the edge of the square baka
-        js.setMinimumDistance(80);      // konyoraro bakayaro
-
-        layout_joystick.setOnTouchListener(new OnTouchListener() {
-            public boolean onTouch(View arg0, MotionEvent arg1) {
-                js.drawStick(arg1);
-                if (arg1.getAction() == MotionEvent.ACTION_DOWN //do something when pressed
-                        || arg1.getAction() == MotionEvent.ACTION_MOVE) {
-
-                    int direction = js.get4Direction();
-                    if (direction == JoyStickClass.STICK_UP) {
-                        turnLeft();
-                    } else if (direction == JoyStickClass.STICK_RIGHT) {
-                        moveForward();
-                        sendMessage("5F");
-                    } else if (direction == JoyStickClass.STICK_DOWN) {
-                        turnRight();
-                    }
-                }
-                return true;        //return true when finger is lifted
-            }
-        });  */
-
 
         // -------------------------------Robot & Maze-----------------------------------
 
@@ -281,6 +226,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         mazeHandler = new Handler();        //Handler send and process messages
 
         t = (ToggleButton)findViewById(R.id.toggle);        //auto manual toggle button
+
         updateMap = (Button) findViewById(R.id.btn_update);
         t.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {    //make the update button appear when manual mode
@@ -327,7 +273,6 @@ public class MainActivity extends Activity implements SensorEventListener{
                 sendMessage(f1configs);
                 Log.d("ble", f1configs);        //log the screen
                 //sendMessage("hi");
-                //Log.d("haha","hahaha");
 
 
             }
@@ -541,7 +486,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         exploreBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("beginExplore\n");
+                sendMessage("beginExplore");
             }
         });
 
@@ -549,7 +494,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         runShortestBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("beginFastest\n");
+                sendMessage("beginFastest");
             }
         });
 
@@ -590,34 +535,6 @@ public class MainActivity extends Activity implements SensorEventListener{
             }
         });
     }
-
-    /*private void setCoordinate(){     //cos the set coordinates have been moved to the nav bar
-
-        saveCoord = (Button) findViewById(R.id.btn_setCoord);
-        saveCoord.setEnabled(true);
-        saveCoord.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TextView xView = (TextView) findViewById(R.id.xCoord);
-                TextView yView = (TextView) findViewById(R.id.yCoord);
-
-                savedXCoord = Integer.parseInt(xView.getText().toString());
-                savedYCoord = Integer.parseInt(yView.getText().toString());
-
-                String message = "coordinate (" + xView.getText().toString() + "," + yView.getText().toString() + ")";
-
-                sendMessage(message);
-                setRobotPos(savedXCoord, savedYCoord);
-            }
-        });
-
-        setXCoord = (EditText) findViewById(R.id.xCoord);
-        setXCoord.setEnabled(true);
-        setYCoord = (EditText) findViewById(R.id.yCoord);
-        setYCoord.setEnabled(true);
-
-        mOutStringBuffer = new StringBuffer("");
-    }*/
 
     private void setRobotPos(int xCoordinate, int yCoordinate){     //set the coordinates of the robot on the map
         int cenGrid = xCoordinate + yCoordinate*20;
@@ -770,6 +687,7 @@ public class MainActivity extends Activity implements SensorEventListener{
                 case MESSAGE_WRITE:
                     byte[] writeBuf = (byte[]) msg.obj;
                     // construct a string from the buffer
+
                     String writeMessage = new String(writeBuf);
                     mConversationArrayAdapter.add("Me:  " + writeMessage);  //the message that appears on top of the "send" button
                     mOutEditText.setText("");
@@ -789,27 +707,14 @@ public class MainActivity extends Activity implements SensorEventListener{
                     {
                         text.setText(readMessage.substring(11,readMessage.length()-2));
                     }
-                    else if(readMessage.contains("GRID"))
+                    else if(readMessage.contains("hex"))
                     {
 
-                        //split by space here
-                        //add in array
-                        //use from the number that you want
-//                        List<String> robotInfo = Arrays.asList(readMessage.split("\\s+"));
-//                        List<String> mapInfo = Arrays.asList(readMessage.split("\\s+"));
-//
-//                        String robotInfo = readMessage.substring(5, readMessage.length());
-//                        String mapInfo = readMessage.substring(17, readMessage.length());
                         text.setText(readMessage);
-                        decodeRobotInfo(readMessage);
+                        decodeMapInfo(readMessage);
                         Log.d(TAG, readMessage);
 //                        Log.d(TAG, mapInfo);
                     }
-                    else if(readMessage.contains("hex"))
-                    {
-                        text.setText(readMessage);
-                    }
-
 //                    else if(readMessage.contains(getString(R.string.map_status)))       //grid
 //                    {
 //                        String mazeInfo = readMessage.substring(12, readMessage.length() - 2);
@@ -848,80 +753,210 @@ public class MainActivity extends Activity implements SensorEventListener{
         }
     };
 
-    // Decoding of hex send over
-    public void decodeMapInfo(String mazeInfo){
-        ArrayList<Integer> obstaclesArr = new ArrayList<Integer>();
-        int obstaclesNum = 0;
-        Log.d(TAG,mazeInfo);
-        for(int i=0;i<75;i++){
-            char gridChar = mazeInfo.charAt(i);
-            int hex = Integer.parseInt(String.valueOf(gridChar), 16);
-            if(hex>0)
-            {
-                String bin = String.format("%4s", Integer.toBinaryString(hex)).replace(' ', '0');
-                Log.d(TAG, "grid:" + i +" bin:"+bin);
-                for(int j = 0; j<4;j++) {
-                    if (Integer.parseInt(String.valueOf(bin.charAt(j))) == 1) {
-                        //method to display obstacles
-                        obstaclesArr.add(obstaclesNum);
-                    }
-                    obstaclesNum++;
-                }
-            }
-            else{
-                obstaclesNum+=4;
-            }
+//    // Decoding of hex send over
+//    public void decodeMapInfo(String mazeInfo){
+//        ArrayList<Integer> obstaclesArr = new ArrayList<Integer>();
+//        int obstaclesNum = 0;
+//        Log.d(TAG,mazeInfo);
+//        for(int i=0;i<75;i++){
+//            char gridChar = mazeInfo.charAt(i);
+//            int hex = Integer.parseInt(String.valueOf(gridChar), 16);   //should intepret the string as a 16bit hexadecimal
+//            if(hex>0)
+//            {
+//                String bin = String.format("%4s", Integer.toBinaryString(hex)).replace(' ', '0');
+//                Log.d(TAG, "grid:" + i +" bin:"+bin);
+//                for(int j = 0; j<4;j++) {
+//                    if (Integer.parseInt(String.valueOf(bin.charAt(j))) == 1) {
+//                        //method to display obstacles
+//                        obstaclesArr.add(obstaclesNum);
+//                    }
+//                    obstaclesNum++;
+//                }
+//            }
+//            else{
+//                obstaclesNum+=4;
+//            }
+//
+//        }
+//        setObstacle(obstaclesArr);
+//    }
 
-        }
-        setObstacle(obstaclesArr);
-    }
+    public void decodeMapInfo(String Message){
 
-    public void decodeRobotInfo(String Message){
-
-        String String1 = Message.substring(0,7);
+        //Splitting the string by space - position of robot, direction and part 1 and part 2
         List<String> robotInfo = Arrays.asList(Message.split("\\s+"));
-//store first few in map and last few in obstacle
 
-        List<String> obstacles = robotInfo.subList(6, robotInfo.size() - 1);
+        //Setting position of robot
 
-        // string_remainder = []
-        // for x in range(6, endofarray):
-            // add to remainder
+        String xcoord = robotInfo.get(1);       //first 2 is the grid info
+        Log.d(TAG, "xpos" + xcoord);
 
+        String ycoord = robotInfo.get(2);
+        Log.d(TAG, "ypos" + ycoord);
 
-
-
-//        List<String> items = Arrays.asList(robotInfo.split("\\s+"));
-        String xcoord = robotInfo.get(3);       //first 2 is the grid info
-        String ycoord = robotInfo.get(4);
-        String robotDirection = robotInfo.get(5);
+        String robotDirection = robotInfo.get(3);
+        Log.d(TAG, "dir" + robotDirection);
 
         setRobotPosWithDir(Integer.parseInt(xcoord), Integer.parseInt(ycoord), Integer.parseInt(robotDirection));
 
-//        List<String> obstacles = Arrays.asList(mapInfo.split("\\s+"));
+        //Getting part 1 and part 2 of hex string
+
+        String exploreInfo = robotInfo.get(4);
+        Log.d(TAG, "part 1 hex" + exploreInfo);
+
+        String obstacleInfo = robotInfo.get(5);
+        Log.d(TAG, "part 2 hex" + obstacleInfo);
+
+
+        //Converting hex string to binary string
+
+        String exploreInt = hexToBin(exploreInfo);
+
+        Log.d(TAG, "part1" + exploreInt);
+
+        String obstacleInt = hexToBin(obstacleInfo);
+        Log.d(TAG, "part2" + obstacleInt);
+
+        //Formatting the part 2 string
+       //hex = 00111000 -> 38
+        //COnvert to binary
+        //
+        //c is the number of 1's in part 1
 
 
 
-        String gridInfo = robotInfo.get(6);
-        for (int i=0;i<gridInfo.length()-1;i++) {   //get the gridInfo from the robotInfo ArrayList
-            obstacleInfo.add(Character.getNumericValue(gridInfo.charAt(i)));
+
+        ArrayList <Integer> exploreMap= new ArrayList<>();
+        int exploredBits = 0;
+
+        //Added all the bits to an arraylist
+
+        for (int i=2;i<exploreInt.length()-3;i++) {   //get the gridInfo from the robotInfo ArrayList
+            exploreMap.add(Character.getNumericValue(exploreInt.charAt(i)));    //arrayList
+            if (exploreInt.charAt(i) == '1')
+            {
+             exploredBits++;
+            }
+        }
+        Log.d(TAG, "Explored Bits" + String.valueOf(exploredBits));
+
+
+        int paddedBits = (8 - exploredBits%8)%8;
+        Log.d(TAG, "padded bits" + String.valueOf(paddedBits));
+
+        //add 0's in front of OBstacleInt = exploredBits - obstacleInt+paddedBits
+        int numZeroToAdd = exploredBits - obstacleInt.length()+paddedBits;
+        Log.d(TAG, "num of zeroes to add" + String.valueOf(numZeroToAdd));
+
+
+        for (int i = 0; i < numZeroToAdd; i++ )
+        {
+            obstacleInt = "0" + obstacleInt;
+            Log.d(TAG, "zeroes added"  + String.valueOf(obstacleInt));
+
+        }
+        Log.d(TAG, "lenth obstacle int"  + String.valueOf(obstacleInt.length()));
+        //Remove padded bits
+        obstacleInt =  obstacleInt.substring(0, obstacleInt.length() - paddedBits);
+        Log.d(TAG, "padded bits removed from end" +  String.valueOf(obstacleInt));
+
+
+
+
+//        def reconstruct_maze(explored,obstacle):
+//        assert explored.count('1')==len(obstacle)
+//        grid=[[0 for x in range(Maze.Y_NUM)] for y in range(Maze.X_NUM)]
+//        for j in range(Maze.Y_NUM):
+//        for i in range(Maze.X_NUM):
+//        explored_ch=explored.pop(0)
+//        if explored_ch=='1':
+//        obstacle_ch=obstacle.pop(0)
+//        if obstacle_ch=='0':
+//        grid[i][j]=1
+//        else:
+//        grid[i][j]=0
+//        else:
+//        grid[i][j]=0
+
+
+        ArrayList <Integer> obstacleMap= new ArrayList<>();
+
+        for (int i=0;i<obstacleInt.length()-1;i++) {   //get the gridInfo from the robotInfo ArrayList
+            obstacleMap.add(Character.getNumericValue(obstacleInt.charAt(i)));    //arrayList
         }
 
-        for (int j=0;j<obstacleInfo.size()-1;j++){
-            Integer obstac = obstacleInfo.get(j);
+        //Reconstruct the map
+
+        if (exploredBits == obstacleInt.length())
+        {
+            int z=0;
+            for (int j=0;j<exploreMap.size()-1;j++){
+                            Integer explored = exploreMap.get(j);
+                            if (explored == 1) {
+                                for (int k = z; k < obstacleMap.size() - 1; z++) {
+                                    Integer obstacle = obstacleMap.get(k);
+                                    if (obstacle == 0) {
+                                        //no obstacle
+                                        arena_maze[j] = 4;
+                                    } else{
+                                        arena_maze[j] = 3;}
+                                    break;
+                                    //z = 1
+                                }
+                            }
+
+                    else
+                        arena_maze[j] = 0;
+                    }
+            setRobotPosWithDir(Integer.parseInt(xcoord), Integer.parseInt(ycoord), Integer.parseInt(robotDirection));
+
+
+        }
+
+        else {
+
+            //trigger an error
+            Log.d(TAG, "Something wrong with the decoding");
+        }
+
+        for (int j=0;j<exploreMap.size()-1;j++){
+            Integer explored = exploreMap.get(j);
             try {
-                if (obstac == 1) {
-                    arena_maze[j] = 3;
+                if (explored == 1) {
+                    arena_maze[j] = 4;
                 }
             }
             catch(NumberFormatException e) {
 
             }
         }
-        gridView.setAdapter(new Maze(this, arena_maze));
-        obstacleInfo.clear();
 
+        for (int j=0;j<obstacleMap.size()-1;j++){
+            Integer obstacles = obstacleMap.get(j);
+            try {
+                if (obstacles == 1) {
+                    arena_maze[j] = 3;
+                }
+            }
+
+            catch(NumberFormatException e) {
+
+            }
+        }
+
+
+
+        gridView.setAdapter(new Maze(this, arena_maze));
+
+        exploreMap.clear();
+        obstacleMap.clear();
     }
+
+    static String hexToBin(String s) {
+        return new BigInteger(s, 16).toString(2);
+    }
+
+
     //place the obstacles on the map
     public void setObstacle(ArrayList<Integer> maze){
         Log.d(TAG, "----------SET OBSTACLE---------");
@@ -1223,6 +1258,8 @@ public class MainActivity extends Activity implements SensorEventListener{
         }
 
     }
+
+
 }
 
 
