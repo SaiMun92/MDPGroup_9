@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends Activity implements SensorEventListener{
+public class MainActivity extends Activity implements SensorEventListener {
 
     // Debugging
     private static final String TAG = "BluetoothChat";
@@ -128,7 +128,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 
     // Grid initialization
     GridView gridView;
-    int robot [] = new int[9];
+    int robot[] = new int[9];
     static final int[] arena_maze = new int[300];
     String robotPos = "forward";
     int savedXCoord, savedYCoord;
@@ -155,14 +155,14 @@ public class MainActivity extends Activity implements SensorEventListener{
         robot[8] = 42;
 
         int x = 0;
-        for(int i=0; i<arena_maze.length; i++) {//populate the arena_maze array with data.
-            if(x<9 && i==robot[x]) {                //This is to show the robot on the grid
-                if( x != 5)                         //x=0 i=0 i=robot[0]=0 arena_maze[0]=1
+        for (int i = 0; i < arena_maze.length; i++) {//populate the arena_maze array with data.
+            if (x < 9 && i == robot[x]) {                //This is to show the robot on the grid
+                if (x != 5)                         //x=0 i=0 i=robot[0]=0 arena_maze[0]=1
                     arena_maze[i] = 1;              //x=1 i=1 i=robot[1]=1 arena_maze[1]=1
                 else                                //x=2 i=2 i=robot[2]=2 arena_maze[2]=1
                     arena_maze[i] = 2;              //x=3 i=3 i!=robot[3]=20 arena_maze[3]=0
                 x++;                                //x=3 i=4 i!=robot[3]=20 arena_maze[4]=0
-            }else {                                 //x=3 i=20 i=robot[3]=20 arena_maze[20]=1   u get the point.
+            } else {                                 //x=3 i=20 i=robot[3]=20 arena_maze[20]=1   u get the point.
                 arena_maze[i] = 0;                  //0 represents the areas not explored by the robot.
             }                                       //1 represents the the orange part of the robot. (the rest)
         }                                           //2 represents the white part, or the front of the robot.
@@ -183,7 +183,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         roboDir = (TextView) findViewById(R.id.robotHead);  //the space beside the F1 button
         roboDir.setText("Robot Head: " + robotPos);         //robotPos indicates the robot position
 
-        if(D) Log.e(TAG, "+++ ON CREATE +++");
+        if (D) Log.e(TAG, "+++ ON CREATE +++");
 
         // Get local Bluetooth adapter of the device
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -191,7 +191,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 
         // If the adapter is null, then Bluetooth is not supported by device
         if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth is not available",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -225,7 +225,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         //------------------Auto and Manual Map Update---------------------------------------
         mazeHandler = new Handler();        //Handler send and process messages
 
-        t = (ToggleButton)findViewById(R.id.toggle);        //auto manual toggle button
+        t = (ToggleButton) findViewById(R.id.toggle);        //auto manual toggle button
 
         updateMap = (Button) findViewById(R.id.btn_update);
         t.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -279,13 +279,12 @@ public class MainActivity extends Activity implements SensorEventListener{
         }));
 
         f2.setOnClickListener((new OnClickListener() {
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
 
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                String f1configs= prefs.getString("edittext_preference2","");
+                String f1configs = prefs.getString("edittext_preference2", "");
                 sendMessage(f1configs);
-                Log.d("ble",f1configs);
+                Log.d("ble", f1configs);
             }
         }));
 
@@ -395,7 +394,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        } else if(bTService == null){
+        } else if (bTService == null) {
             setUpChat();
             //setCoordinate();
         }
@@ -405,7 +404,7 @@ public class MainActivity extends Activity implements SensorEventListener{
     @Override
     public synchronized void onResume() {
         super.onResume();
-        if(D) Log.e(TAG, "+ ON RESUME +");
+        if (D) Log.e(TAG, "+ ON RESUME +");
 
         // onResume() when comes back from enabling bluetooth
         if (bTService != null) {
@@ -428,7 +427,7 @@ public class MainActivity extends Activity implements SensorEventListener{
     @Override
     public synchronized void onPause() {
         super.onPause();
-        if(D) Log.e(TAG, "- ON PAUSE -");
+        if (D) Log.e(TAG, "- ON PAUSE -");
 
         mSensorManager.unregisterListener(this);
     }
@@ -436,7 +435,7 @@ public class MainActivity extends Activity implements SensorEventListener{
     @Override
     public void onStop() {
         super.onStop();
-        if(D) Log.e(TAG, "-- ON STOP --");
+        if (D) Log.e(TAG, "-- ON STOP --");
     }
 
     @Override
@@ -456,7 +455,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         Log.d(TAG, "setupChat()");     //initialise the buttons to be ready for bluetooth
 
         // Initialize the array adapter for the conversation thread
-        mConversationArrayAdapter = new ArrayAdapter<String>(this,R.layout.message);
+        mConversationArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
         mConversationView = (ListView) findViewById(R.id.chat_log);
         mConversationView.setAdapter(mConversationArrayAdapter);
 
@@ -487,6 +486,9 @@ public class MainActivity extends Activity implements SensorEventListener{
             @Override
             public void onClick(View v) {
                 sendMessage("beginExplore");
+                String readMessage = "hex 1 1 90 FE007000F801C003800300000000000000000000000000000000000000000000000000000003 000080";
+                decodeMapInfo(readMessage);
+
             }
         });
 
@@ -524,20 +526,20 @@ public class MainActivity extends Activity implements SensorEventListener{
         });
 
 
-        tiltToggle = (ToggleButton)findViewById(R.id.tilt_toggle);
+        tiltToggle = (ToggleButton) findViewById(R.id.tilt_toggle);
         tiltToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
+                if (isChecked) {
                     tilt = true;
-                }else{
+                } else {
                     tilt = false;
                 }
             }
         });
     }
 
-    private void setRobotPos(int xCoordinate, int yCoordinate){     //set the coordinates of the robot on the map
-        int cenGrid = xCoordinate + yCoordinate*20;
+    private void setRobotPos(int xCoordinate, int yCoordinate) {     //set the coordinates of the robot on the map
+        int cenGrid = xCoordinate + yCoordinate * 20;
 
         robot[0] = cenGrid - 21;            //robot takes up 9 squares (0-8)
         robot[1] = cenGrid - 20;
@@ -550,22 +552,22 @@ public class MainActivity extends Activity implements SensorEventListener{
         robot[8] = cenGrid + 21;
 
         int x = 0;
-        for(int i=0; i<arena_maze.length; i++) {        //display the robot on the map -> see Maze.java
-            if(x<9 && i==robot[x]) {
-                if( x != 5)
+        for (int i = 0; i < arena_maze.length; i++) {        //display the robot on the map -> see Maze.java
+            if (x < 9 && i == robot[x]) {
+                if (x != 5)
                     arena_maze[i] = 1;
                 else
                     arena_maze[i] = 2;      //robot head
                 x++;
-            }else {
+            } else {
                 arena_maze[i] = 0;
             }
         }
         gridView.setAdapter(new Maze(this, arena_maze));
     }
 
-    private void setRobotPosWithDir(int xCoordinate, int yCoordinate, int robotDirection){
-        int cenGrid = xCoordinate + yCoordinate*20;
+    private void setRobotPosWithDir(int xCoordinate, int yCoordinate, int robotDirection) {
+        int cenGrid = xCoordinate + yCoordinate * 20;
 
         robot[0] = cenGrid - 21;            //robot takes up 9 squares (0-8)
         robot[1] = cenGrid - 20;
@@ -578,24 +580,22 @@ public class MainActivity extends Activity implements SensorEventListener{
         robot[8] = cenGrid + 21;
 
         int x = 0;
-        for(int i=0; i<arena_maze.length; i++) {        //display the robot on the map -> see Maze.java
-            if(x<9 && i==robot[x]) {
+        for (int i = 0; i < arena_maze.length; i++) {        //display the robot on the map -> see Maze.java
+            if (x < 9 && i == robot[x]) {
 
                 arena_maze[i] = 1;
 
-                if (robotDirection == 0){
+                if (robotDirection == 0) {
                     arena_maze[robot[1]] = 2;
-                }
-                else if (robotDirection == 90){
+                } else if (robotDirection == 90) {
                     arena_maze[robot[5]] = 2;
-                }else if (robotDirection == 180){
+                } else if (robotDirection == 180) {
                     arena_maze[robot[7]] = 2;
-                }else if (robotDirection == 270){
+                } else if (robotDirection == 270) {
                     arena_maze[robot[3]] = 2;
                 }
                 x++;
-            }
-            else {
+            } else {
                 arena_maze[i] = 0;
             }
         }
@@ -610,12 +610,12 @@ public class MainActivity extends Activity implements SensorEventListener{
             try {
                 sendMessage("sendArena");
                 mazeHandler.postDelayed(mStatusChecker, mInterval);
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     };
+
     private void startRepeatingTask() {
         mStatusChecker.run();           //keep sending the message "sendArena" every 10 seconds
     }   //used for the toggle button
@@ -671,7 +671,7 @@ public class MainActivity extends Activity implements SensorEventListener{
                         Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
                     switch (msg.arg1) {
                         case BluetoothService.STATE_CONNECTED:
-                            setStatus(getString(R.string.title_connected_to,mConnectedDeviceName));
+                            setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
                             mConversationArrayAdapter.clear();
 
                             break;
@@ -699,16 +699,12 @@ public class MainActivity extends Activity implements SensorEventListener{
                     TextView text = (TextView) findViewById(R.id.tb_status);
                     text.setMovementMethod(new ScrollingMovementMethod());
 
-                    if(readMessage.startsWith(getString(R.string.start_STATUS)))
-                    {
+                    if (readMessage.startsWith(getString(R.string.start_STATUS))) {
                         text.setText(readMessage);
-                    }
-                    else if(readMessage.contains(getString(R.string.robot_status))) //status
+                    } else if (readMessage.contains(getString(R.string.robot_status))) //status
                     {
-                        text.setText(readMessage.substring(11,readMessage.length()-2));
-                    }
-                    else if(readMessage.contains("hex"))
-                    {
+                        text.setText(readMessage.substring(11, readMessage.length() - 2));
+                    } else if (readMessage.contains("hex")) {
 
                         text.setText(readMessage);
                         decodeMapInfo(readMessage);
@@ -744,10 +740,10 @@ public class MainActivity extends Activity implements SensorEventListener{
                 case MESSAGE_DEVICE_NAME:
                     // save the connected device's name
                     mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-                    Toast.makeText(getApplicationContext(),"Connected to " + mConnectedDeviceName,Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
                     break;
                 case MESSAGE_TOAST:
-                    Toast.makeText(getApplicationContext(),msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -781,7 +777,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 //        setObstacle(obstaclesArr);
 //    }
 
-    public void decodeMapInfo(String Message){
+    public void decodeMapInfo(String Message) {
 
         //Splitting the string by space - position of robot, direction and part 1 and part 2
         List<String> robotInfo = Arrays.asList(Message.split("\\s+"));
@@ -811,142 +807,143 @@ public class MainActivity extends Activity implements SensorEventListener{
         //Converting hex string to binary string
 
         String exploreInt = hexToBin(exploreInfo);
-
+//        String exploreInt = String.format("%0300d", 10000000);
+//        exploreInt = "11" + exploreInt + "11";
         Log.d(TAG, "part1" + exploreInt);
+
 
         String obstacleInt = hexToBin(obstacleInfo);
         Log.d(TAG, "part2" + obstacleInt);
 
-        //Formatting the part 2 string
-       //hex = 00111000 -> 38
-        //COnvert to binary
-        //
-        //c is the number of 1's in part 1
 
-
-
-
-        ArrayList <Integer> exploreMap= new ArrayList<>();
+        ArrayList<Integer> exploreMap = new ArrayList<>();
         int exploredBits = 0;
 
         //Added all the bits to an arraylist
 
-        for (int i=2;i<exploreInt.length()-3;i++) {   //get the gridInfo from the robotInfo ArrayList
+        for (int i = 2; i < exploreInt.length() - 3; i++) {   //get the gridInfo from the robotInfo ArrayList
             exploreMap.add(Character.getNumericValue(exploreInt.charAt(i)));    //arrayList
-            if (exploreInt.charAt(i) == '1')
-            {
-             exploredBits++;
+            if (exploreInt.charAt(i) == '1') {
+                exploredBits++;
             }
         }
         Log.d(TAG, "Explored Bits" + String.valueOf(exploredBits));
 
 
-        int paddedBits = (8 - exploredBits%8)%8;
+        int paddedBits = (8 - exploredBits % 8) % 8;
         Log.d(TAG, "padded bits" + String.valueOf(paddedBits));
 
         //add 0's in front of OBstacleInt = exploredBits - obstacleInt+paddedBits
-        int numZeroToAdd = exploredBits - obstacleInt.length()+paddedBits;
+        int numZeroToAdd = exploredBits - obstacleInt.length() + paddedBits;
         Log.d(TAG, "num of zeroes to add" + String.valueOf(numZeroToAdd));
 
 
-        for (int i = 0; i < numZeroToAdd; i++ )
-        {
+        for (int i = 0; i < numZeroToAdd; i++) {
             obstacleInt = "0" + obstacleInt;
-            Log.d(TAG, "zeroes added"  + String.valueOf(obstacleInt));
+            Log.d(TAG, "zeroes added" + String.valueOf(obstacleInt));
 
         }
-        Log.d(TAG, "lenth obstacle int"  + String.valueOf(obstacleInt.length()));
+        Log.d(TAG, "lenth obstacle int" + String.valueOf(obstacleInt.length()));
         //Remove padded bits
         obstacleInt =  obstacleInt.substring(0, obstacleInt.length() - paddedBits);
-        Log.d(TAG, "padded bits removed from end" +  String.valueOf(obstacleInt));
+//        obstacleInt = "0";
 
+        Log.d(TAG, "padded bits removed from end" + String.valueOf(obstacleInt));
 
-
-
-//        def reconstruct_maze(explored,obstacle):
-//        assert explored.count('1')==len(obstacle)
-//        grid=[[0 for x in range(Maze.Y_NUM)] for y in range(Maze.X_NUM)]
-//        for j in range(Maze.Y_NUM):
-//        for i in range(Maze.X_NUM):
-//        explored_ch=explored.pop(0)
-//        if explored_ch=='1':
-//        obstacle_ch=obstacle.pop(0)
-//        if obstacle_ch=='0':
-//        grid[i][j]=1
-//        else:
-//        grid[i][j]=0
-//        else:
-//        grid[i][j]=0
-
-
-        ArrayList <Integer> obstacleMap= new ArrayList<>();
-
-        for (int i=0;i<obstacleInt.length()-1;i++) {   //get the gridInfo from the robotInfo ArrayList
+        ArrayList<Integer> obstacleMap = new ArrayList<>();
+        for (int i = 0; i <= obstacleInt.length() - 1; i++) {   //get the gridInfo from the robotInfo ArrayList
             obstacleMap.add(Character.getNumericValue(obstacleInt.charAt(i)));    //arrayList
+            Log.d("HELLO", "Added to obstacle map! Size = "+ obstacleMap.size());
         }
 
         //Reconstruct the map
 
-        if (exploredBits == obstacleInt.length())
-        {
-            int z=0;
-            for (int j=0;j<exploreMap.size()-1;j++){
-                            Integer explored = exploreMap.get(j);
-                            if (explored == 1) {
-                                for (int k = z; k < obstacleMap.size() - 1; z++) {
-                                    Integer obstacle = obstacleMap.get(k);
-                                    if (obstacle == 0) {
-                                        //no obstacle
-                                        arena_maze[j] = 4;
-                                    } else{
-                                        arena_maze[j] = 3;}
-                                    break;
-                                    //z = 1
-                                }
-                            }
+        if (exploredBits == obstacleInt.length()) {
+            Log.d(TAG, "If condition true" + exploreMap.size());
 
-                    else
-                        arena_maze[j] = 0;
+            int z = 0;
+            for (int j = 0; j < exploreMap.size() - 1; j++) {
+                Integer explored = exploreMap.get(j);
+                Log.d(TAG, "j= " + j + "Explored: " + explored);
+                if (explored == 1) {
+                    Log.d(TAG, "if condition true 2 " + j);
+                    Integer obstacle = obstacleMap.get(z);
+                    if (obstacle == 0) {
+                        //no obstacle
+//                        arena_maze[j / 15 + (280 - (20 * (j % 15)))] = 4;
+                        try {
+                            arena_maze[j] = 3;
+                            Log.d(TAG, "" + String.valueOf(j / 15 + (280 - (20 * (j % 15)))));
+                        }catch (NumberFormatException e) {
+
+            }
+
+                    } else {
+//                        arena_maze[j / 15 + (280 - (20 * (j % 15)))] = 3;
+                        try {
+                            arena_maze[j] = 4;
+                            Log.d(TAG, "" + String.valueOf(j / 15 + (280 - (20 * (j % 15)))));
+                        }catch (NumberFormatException e) {
+
+                        }
                     }
+                    z++;
+
+                } else {
+
+//                    arena_maze[j / 15 + (280 - (20 * (j % 15)))] = 0;
+                    try {
+                        arena_maze[j] = 0;
+                        Log.d(TAG, "" + String.valueOf(j / 15 + (280 - (20 * (j % 15)))));
+                    }catch (NumberFormatException e) {
+
+                    }
+                }
+
+            }
             setRobotPosWithDir(Integer.parseInt(xcoord), Integer.parseInt(ycoord), Integer.parseInt(robotDirection));
 
 
-        }
-
-        else {
+        } else {
 
             //trigger an error
             Log.d(TAG, "Something wrong with the decoding");
         }
 
-        for (int j=0;j<exploreMap.size()-1;j++){
+        int z = 0;
+        for (int j = 0; j < exploreMap.size() - 1; j++) {
             Integer explored = exploreMap.get(j);
             try {
                 if (explored == 1) {
-                    arena_maze[j] = 4;
+                    Integer obstacle = obstacleMap.get(z);
+                    if (obstacle == 0) {
+//                        arena_maze[j]=4;
+//                         arena_maze[j / 15 + (280 -(20 * (j % 15)))] = 4;
+                        arena_maze[j / 15 + (20 * (j % 15))] = 4;
+                    }else{
+//                        arena_maze[j]=3;
+//                        arena_maze[j / 15 + (280 - (20 * (j % 15)))] = 3;
+                        arena_maze[j / 15 + (20 * (j % 15))] = 3;
+                    }
+                    z++;
                 }
-            }
-            catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
 
             }
         }
 
-        for (int j=0;j<obstacleMap.size()-1;j++){
-            Integer obstacles = obstacleMap.get(j);
-            try {
-                if (obstacles == 1) {
-                    arena_maze[j] = 3;
-                }
-            }
+//        for (int j = 0; j < obstacleMap.size() - 1; j++) {
+//            Integer obstacles = obstacleMap.get(j);
+//            try {
+//                if (obstacles == 1) {
+//                    arena_maze[j] = 3;
+//                }
+//            } catch (NumberFormatException e) {
+//
+//            }
+//        }
 
-            catch(NumberFormatException e) {
-
-            }
-        }
-
-
-
-        gridView.setAdapter(new Maze(this, arena_maze));
+        gridView.setAdapter(new Maze(getApplicationContext(), arena_maze));
 
         exploreMap.clear();
         obstacleMap.clear();
@@ -958,11 +955,11 @@ public class MainActivity extends Activity implements SensorEventListener{
 
 
     //place the obstacles on the map
-    public void setObstacle(ArrayList<Integer> maze){
+    public void setObstacle(ArrayList<Integer> maze) {
         Log.d(TAG, "----------SET OBSTACLE---------");
-        for(int i=0;i<maze.size();i++) {
-            for(int j = 0; j<300; j++){
-                if(mapping[j] == maze.get(i)){
+        for (int i = 0; i < maze.size(); i++) {
+            for (int j = 0; j < 300; j++) {
+                if (mapping[j] == maze.get(i)) {
                     arena_maze[j] = 3;          //color the maze yellow
                     break;
                 }
@@ -973,81 +970,79 @@ public class MainActivity extends Activity implements SensorEventListener{
         gridView.setAdapter(new Maze(this, arena_maze));
     }
 
-    public void robotPosition(String direction){
+    public void robotPosition(String direction) {
 
-        if(robotPos.equals("forward")){               //to recolor back the robot head from white to orange
+        if (robotPos.equals("forward")) {               //to recolor back the robot head from white to orange
             arena_maze[robot[5]] = 1;
-        }else if(robotPos.equals("left")){
+        } else if (robotPos.equals("left")) {
             arena_maze[robot[1]] = 1;
-        }else if(robotPos.equals("right")){
+        } else if (robotPos.equals("right")) {
             arena_maze[robot[7]] = 1;
-        }else{
+        } else {
             arena_maze[robot[3]] = 1;
         }
 
-        if(direction.equals("R")){ //Turn right         //the direction in which the robot is facing
-            if (robotPos.equals("forward")){
+        if (direction.equals("R")) { //Turn right         //the direction in which the robot is facing
+            if (robotPos.equals("forward")) {
                 robotPos = "right";
 
-            }else if (robotPos.equals("right")){
+            } else if (robotPos.equals("right")) {
                 robotPos = "reverse";
 
-            }else if (robotPos.equals("reverse")){
+            } else if (robotPos.equals("reverse")) {
                 robotPos = "left";
 
-            }else{
-                robotPos= "forward";
-
-            }
-        }else if (direction.equals("L")){ //turn left
-            if (robotPos.equals("forward")){
-                robotPos = "left";
-
-            }else if (robotPos.equals("right")){
+            } else {
                 robotPos = "forward";
 
-            }else if (robotPos.equals("reverse")){
+            }
+        } else if (direction.equals("L")) { //turn left
+            if (robotPos.equals("forward")) {
+                robotPos = "left";
+
+            } else if (robotPos.equals("right")) {
+                robotPos = "forward";
+
+            } else if (robotPos.equals("reverse")) {
                 robotPos = "right";
 
-            }else{
-                robotPos= "reverse";
+            } else {
+                robotPos = "reverse";
 
             }
-        } else if (direction.equals("RV")){ // reverse
-            if (robotPos.equals("forward")){
+        } else if (direction.equals("RV")) { // reverse
+            if (robotPos.equals("forward")) {
                 robotPos = "reverse";
-            }else if (robotPos.equals("right")){
+            } else if (robotPos.equals("right")) {
                 robotPos = "left";
-            }else if (robotPos.equals("left")){
+            } else if (robotPos.equals("left")) {
                 robotPos = "right";
-            }else{
-                robotPos= "forward";
+            } else {
+                robotPos = "forward";
             }
         }
 
         roboDir.setText("Robot Head: " + robotPos);
 
-        if(robotPos.equals("forward")){
+        if (robotPos.equals("forward")) {
             arena_maze[robot[5]] = 2;
-        }else if(robotPos.equals("left")){
+        } else if (robotPos.equals("left")) {
             arena_maze[robot[1]] = 2;
-        }else if(robotPos.equals("right")){
+        } else if (robotPos.equals("right")) {
             arena_maze[robot[7]] = 2;
-        }else{
+        } else {
             arena_maze[robot[3]] = 2;
         }
 
         gridView.setAdapter(new Maze(this, arena_maze));
     }
 
-    public void moveForward(){
+    public void moveForward() {
         //robotPos = "";
-        switch(robotPos){
+        switch (robotPos) {
             case "forward":
-                if((robot[2] % 20) != 19)
-                {
-                    for (int i = 0; i < 9; i++)
-                    {
+                if ((robot[2] % 20) != 19) {
+                    for (int i = 0; i < 9; i++) {
                         if (i % 3 == 0)
                             arena_maze[robot[i]] = 0; //arena
                         robot[i] = robot[i] + 1;
@@ -1060,9 +1055,9 @@ public class MainActivity extends Activity implements SensorEventListener{
                 break;
 
             case "right":
-                if(robot[6] <280){
+                if (robot[6] < 280) {
                     for (int i = 0; i < 9; i++) {
-                        if (i<3) {
+                        if (i < 3) {
                             arena_maze[robot[i]] = 0; //arena
                         }
                         robot[i] = robot[i] + 20;
@@ -1073,9 +1068,9 @@ public class MainActivity extends Activity implements SensorEventListener{
                 }
                 break;
             case "left":
-                if( robot[0] > 20){
+                if (robot[0] > 20) {
                     for (int i = 0; i < 9; i++) {
-                        if (i>5) {
+                        if (i > 5) {
                             arena_maze[robot[i]] = 0; //arena
                         }
                         robot[i] = robot[i] - 20;
@@ -1086,9 +1081,9 @@ public class MainActivity extends Activity implements SensorEventListener{
                 }
                 break;
             case "reverse":
-                if( (robot[0] % 20 ) != 0 ){
+                if ((robot[0] % 20) != 0) {
                     for (int i = 0; i < 9; i++) {
-                        if ( (i+1) %3 == 0) {
+                        if ((i + 1) % 3 == 0) {
                             arena_maze[robot[i]] = 0; //arena
                         }
                         robot[i] = robot[i] - 1;
@@ -1105,17 +1100,17 @@ public class MainActivity extends Activity implements SensorEventListener{
         gridView.setAdapter(new Maze(this, arena_maze));
     }
 
-    public void turnRight(){
+    public void turnRight() {
         robotPosition("R");
         sendMessage("r");
     }
 
-    public void turnLeft(){
+    public void turnLeft() {
         robotPosition("L");
         sendMessage("l");
     }
 
-    public void moveReverse(View v){
+    public void moveReverse(View v) {
         robotPosition("RV");
     }
 
@@ -1145,7 +1140,7 @@ public class MainActivity extends Activity implements SensorEventListener{
                     } else {
                         // Exit the whole application if user does not want to enable
                         Log.d(TAG, "Bluetooth not enabled");
-                        Toast.makeText(this, R.string.bt_not_enabled_leaving,Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
                         finish();
                     }
                     break;
@@ -1155,7 +1150,7 @@ public class MainActivity extends Activity implements SensorEventListener{
                         String f1config = data.getStringExtra("edittext_preference1");
                         String f2config = data.getStringExtra("f2configs");
 
-                        Log.i("hmm-" ,"" + f1config);
+                        Log.i("hmm-", "" + f1config);
 
                     } else {
                         Log.d(TAG, "nth to pass back");
@@ -1163,8 +1158,7 @@ public class MainActivity extends Activity implements SensorEventListener{
                     break;
             }
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }
     }
 
@@ -1193,7 +1187,7 @@ public class MainActivity extends Activity implements SensorEventListener{
             case R.id.secure_connect_scan:
                 // Launch the DeviceListActivity to see devices and do scan
                 serverIntent = new Intent(this, DeviceListActivity.class);
-                startActivityForResult(serverIntent,REQUEST_CONNECT_DEVICE_INSECURE);
+                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_INSECURE);
                 break;
         }
         return false;
@@ -1229,7 +1223,7 @@ public class MainActivity extends Activity implements SensorEventListener{
                 float x = mOrientation[2];
                 float y = mOrientation[1];
                 if (Math.abs(x) > Math.abs(y)) {
-                    if (x > 0.5 ) {
+                    if (x > 0.5) {
                         moveForward();
                         sendMessage("f");
                         Log.i(TAG, "FORWARD");
