@@ -12,7 +12,7 @@
             tools:context=".MainActivity"
             android:weightSum="1"
             android:id="@+id/content_frame"
-            android:background="#817575">
+            android:background="#020000">
 
             <LinearLayout
                 android:orientation="vertical"
@@ -29,7 +29,7 @@
                     android:numColumns="20"
                     android:stretchMode="columnWidth"
                     android:layout_weight="3.65"
-                    android:background="#a99797">
+                    android:background="#020000">
                 </GridView>
             </LinearLayout>
 
@@ -54,8 +54,8 @@
 
                 <Button
                     android:id="@+id/upButton"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:background="@drawable/ic_up_arrow"
                     />
@@ -66,20 +66,15 @@
                     android:layout_height="100dp">
 
                     <Button
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
                         android:background="@drawable/ic_left_arrow"
                         />
-                    <Button
-                        android:id="@+id/downButton"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:background="@drawable/ic_down_arrow"
-                        />
+
                     <Button
                         android:id="@+id/rightButton"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:background="@drawable/ic_right_arrow"
                         />
                 </LinearLayout>
@@ -120,7 +115,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/tiltText"
-                    android:layout_below="@+id/btn_update"/>
+                    android:layout_below="@+id/btn_update"
+                    android:checked="false" />
 
                 <TextView
                     android:id="@+id/robotHead"
@@ -147,7 +143,7 @@
 
                 <Button
                     android:id="@+id/explore"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:text="explore"
@@ -155,7 +151,7 @@
 
                 <Button
                     android:id="@+id/runButton"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Run"
@@ -165,7 +161,7 @@
 
                 <Button
                     android:id="@+id/F1Button"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="F1"
@@ -175,7 +171,7 @@
 
                 <Button
                     android:id="@+id/F2Button"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="F2"

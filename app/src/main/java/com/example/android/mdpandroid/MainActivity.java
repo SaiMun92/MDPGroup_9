@@ -40,9 +40,6 @@ import android.app.FragmentManager;
 import android.hardware.SensorEvent;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -326,9 +323,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         switch (position) {
             case 0:     //Set Coordinates
-                /*FragmentManager manager = getFragmentManager();
-                DialogBox newDialog = new DialogBox();
-                newDialog.show(manager, "A new dialog box");*/
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
                 LinearLayout layout = new LinearLayout(this);
                 layout.setOrientation(LinearLayout.HORIZONTAL);
@@ -359,11 +353,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                 drawerLayout.closeDrawer(Gravity.LEFT);
                 break;
             case 1:
-                //TextView prefEditText = (TextView) findViewById(R.id.prefEditText);
                 Intent intent = new Intent(this, SetPreferenceActivity.class);  //open the SetPreferenceActivity.java
                 startActivityForResult(intent, mRequestCode);
-
-                //Log.d("f1config",two);
                 break;
             default:
                 break;
@@ -400,6 +391,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
 
     }
+
 
     @Override
     public synchronized void onResume() {
@@ -486,8 +478,8 @@ public class MainActivity extends Activity implements SensorEventListener {
             @Override
             public void onClick(View v) {
                 sendMessage("beginExplore");
-                String readMessage = "hex 1 1 90 FE007000F801C003800300000000000000000000000000000000000000000000000000000003 000080";
-                decodeMapInfo(readMessage);
+//                String readMessage = "hex 2 2 90 FE007000F801C003800300000000000000000000000000000000000000000000000000000003 000080";
+//                decodeMapInfo(readMessage);
 
             }
         });
@@ -517,13 +509,13 @@ public class MainActivity extends Activity implements SensorEventListener {
                 turnLeft();
             }
         });
-        rightBtn = (Button) findViewById(R.id.downButton);
-        rightBtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                turnRight();
-            }
-        });
+//        rightBtn = (Button) findViewById(R.id.downButton);
+//        rightBtn.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                turnRight();
+//            }
+//        });
 
 
         tiltToggle = (ToggleButton) findViewById(R.id.tilt_toggle);
@@ -596,7 +588,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 }
                 x++;
             } else {
-                arena_maze[i] = 0;
+//                arena_maze[i] = 0;
             }
         }
         gridView.setAdapter(new Maze(this, arena_maze));
@@ -749,33 +741,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
     };
 
-//    // Decoding of hex send over
-//    public void decodeMapInfo(String mazeInfo){
-//        ArrayList<Integer> obstaclesArr = new ArrayList<Integer>();
-//        int obstaclesNum = 0;
-//        Log.d(TAG,mazeInfo);
-//        for(int i=0;i<75;i++){
-//            char gridChar = mazeInfo.charAt(i);
-//            int hex = Integer.parseInt(String.valueOf(gridChar), 16);   //should intepret the string as a 16bit hexadecimal
-//            if(hex>0)
-//            {
-//                String bin = String.format("%4s", Integer.toBinaryString(hex)).replace(' ', '0');
-//                Log.d(TAG, "grid:" + i +" bin:"+bin);
-//                for(int j = 0; j<4;j++) {
-//                    if (Integer.parseInt(String.valueOf(bin.charAt(j))) == 1) {
-//                        //method to display obstacles
-//                        obstaclesArr.add(obstaclesNum);
-//                    }
-//                    obstaclesNum++;
-//                }
-//            }
-//            else{
-//                obstaclesNum+=4;
-//            }
-//
-//        }
-//        setObstacle(obstaclesArr);
-//    }
 
     public void decodeMapInfo(String Message) {
 
@@ -856,92 +821,46 @@ public class MainActivity extends Activity implements SensorEventListener {
             Log.d("HELLO", "Added to obstacle map! Size = "+ obstacleMap.size());
         }
 
-        //Reconstruct the map
-
-        if (exploredBits == obstacleInt.length()) {
-            Log.d(TAG, "If condition true" + exploreMap.size());
-
-            int z = 0;
-            for (int j = 0; j < exploreMap.size() - 1; j++) {
-                Integer explored = exploreMap.get(j);
-                Log.d(TAG, "j= " + j + "Explored: " + explored);
-                if (explored == 1) {
-                    Log.d(TAG, "if condition true 2 " + j);
-                    Integer obstacle = obstacleMap.get(z);
-                    if (obstacle == 0) {
-                        //no obstacle
-//                        arena_maze[j / 15 + (280 - (20 * (j % 15)))] = 4;
-                        try {
-                            arena_maze[j] = 3;
-                            Log.d(TAG, "" + String.valueOf(j / 15 + (280 - (20 * (j % 15)))));
-                        }catch (NumberFormatException e) {
-
-            }
-
-                    } else {
-//                        arena_maze[j / 15 + (280 - (20 * (j % 15)))] = 3;
-                        try {
-                            arena_maze[j] = 4;
-                            Log.d(TAG, "" + String.valueOf(j / 15 + (280 - (20 * (j % 15)))));
-                        }catch (NumberFormatException e) {
-
-                        }
-                    }
-                    z++;
-
-                } else {
-
-//                    arena_maze[j / 15 + (280 - (20 * (j % 15)))] = 0;
-                    try {
-                        arena_maze[j] = 0;
-                        Log.d(TAG, "" + String.valueOf(j / 15 + (280 - (20 * (j % 15)))));
-                    }catch (NumberFormatException e) {
-
-                    }
-                }
-
-            }
-            setRobotPosWithDir(Integer.parseInt(xcoord), Integer.parseInt(ycoord), Integer.parseInt(robotDirection));
-
-
-        } else {
-
-            //trigger an error
-            Log.d(TAG, "Something wrong with the decoding");
-        }
-
         int z = 0;
         for (int j = 0; j < exploreMap.size() - 1; j++) {
+            Log.d(TAG, "for loop one");
+
             Integer explored = exploreMap.get(j);
             try {
                 if (explored == 1) {
                     Integer obstacle = obstacleMap.get(z);
                     if (obstacle == 0) {
+                        Log.d(TAG, "if cond true");
+
 //                        arena_maze[j]=4;
 //                         arena_maze[j / 15 + (280 -(20 * (j % 15)))] = 4;
                         arena_maze[j / 15 + (20 * (j % 15))] = 4;
+
+
                     }else{
+                        Log.d(TAG, "if cond false");
+
 //                        arena_maze[j]=3;
 //                        arena_maze[j / 15 + (280 - (20 * (j % 15)))] = 3;
                         arena_maze[j / 15 + (20 * (j % 15))] = 3;
+
                     }
                     z++;
+
+                }
+                else {
+                    arena_maze[j / 15 + (20 * (j % 15))] = 0;
                 }
             } catch (NumberFormatException e) {
 
             }
+            setRobotPosWithDir(Integer.parseInt(xcoord), Integer.parseInt(ycoord), Integer.parseInt(robotDirection));
+            Log.d(TAG, xcoord + " " + ycoord + " " + robotDirection);
+            Log.d(TAG, "for loop");
+
         }
 
-//        for (int j = 0; j < obstacleMap.size() - 1; j++) {
-//            Integer obstacles = obstacleMap.get(j);
-//            try {
-//                if (obstacles == 1) {
-//                    arena_maze[j] = 3;
-//                }
-//            } catch (NumberFormatException e) {
-//
-//            }
-//        }
+
 
         gridView.setAdapter(new Maze(getApplicationContext(), arena_maze));
 
@@ -1110,9 +1029,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         sendMessage("l");
     }
 
-    public void moveReverse(View v) {
-        robotPosition("RV");
-    }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         try {
