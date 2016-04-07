@@ -477,7 +477,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         exploreBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("beginExplore");
+                sendMessage("e");
 //                String readMessage = "hex 2 2 90 FE007000F801C003800300000000000000000000000000000000000000000000000000000003 000080";
 //                decodeMapInfo(readMessage);
 
@@ -488,7 +488,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         runShortestBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("beginFastest");
+                sendMessage("f");
             }
         });
 
@@ -558,7 +558,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         gridView.setAdapter(new Maze(this, arena_maze));
     }
 
-    private void setRobotPosWithDir(int xCoordinate, int yCoordinate, int robotDirection) {
+    private void setRobotPosWithDir(int xCoordinate, int yCoordinate, String robotDirection) {
         int cenGrid = xCoordinate + yCoordinate * 20;
 
         robot[0] = cenGrid - 21;            //robot takes up 9 squares (0-8)
@@ -577,13 +577,13 @@ public class MainActivity extends Activity implements SensorEventListener {
 
                 arena_maze[i] = 1;
 
-                if (robotDirection == 0) {
+                if (robotDirection == "W") {
                     arena_maze[robot[1]] = 2;
-                } else if (robotDirection == 90) {
+                } else if (robotDirection == "N") {
                     arena_maze[robot[5]] = 2;
-                } else if (robotDirection == 180) {
+                } else if (robotDirection == "E") {
                     arena_maze[robot[7]] = 2;
-                } else if (robotDirection == 270) {
+                } else if (robotDirection == "S") {
                     arena_maze[robot[3]] = 2;
                 }
                 x++;
@@ -691,15 +691,36 @@ public class MainActivity extends Activity implements SensorEventListener {
                     TextView text = (TextView) findViewById(R.id.tb_status);
                     text.setMovementMethod(new ScrollingMovementMethod());
 
-                    if (readMessage.startsWith(getString(R.string.start_STATUS))) {
-                        text.setText(readMessage);
-                    } else if (readMessage.contains(getString(R.string.robot_status))) //status
-                    {
-                        text.setText(readMessage.substring(11, readMessage.length() - 2));
-                    } else if (readMessage.contains("hex")) {
+//                    if (readMessage.startsWith(getString(R.string.start_STATUS))) {
+//                        text.setText(readMessage);
+//                    } else if (readMessage.contains(getString(R.string.robot_status))) //status
+//                    {
+//                        text.setText(readMessage.substring(11, readMessage.length() - 2));
+//                    } else if (readMessage.contains("hex")) {
+                        //format must be the same
+                        //remove hex
+                    if (readMessage.length()> 0){
+                        List<String> robotInfo = Arrays.asList(readMessage.split("\\s+"));
+                        String xcoord = robotInfo.get(0);       //first 2 is the grid info
+                        Log.d(TAG, "xpos" + xcoord);
 
-                        text.setText(readMessage);
-                        decodeMapInfo(readMessage);
+                        String ycoord = robotInfo.get(1);
+                        Log.d(TAG, "ypos" + ycoord);
+
+                       String robotDirection = robotInfo.get(2);
+                       Log.d(TAG, "dir" + robotDirection);
+
+                        int n = 76;
+                        char[] chars = new char[n];
+                        Arrays.fill(chars, 'f');
+                        String exploreInfo = new String(chars);
+                        Log.d(TAG, "part 1 hex" + exploreInfo);
+
+                        String obstacleInfo = robotInfo.get(3);
+                        Log.d(TAG, "part 2 hex" + obstacleInfo);
+
+                        text.setText(xcoord + ycoord + robotDirection +  exploreInfo + obstacleInfo);
+                        decodeMapInfo(xcoord, ycoord, robotDirection, exploreInfo, obstacleInfo);
                         Log.d(TAG, readMessage);
 //                        Log.d(TAG, mapInfo);
                     }
@@ -742,31 +763,38 @@ public class MainActivity extends Activity implements SensorEventListener {
     };
 
 
-    public void decodeMapInfo(String Message) {
+    public void decodeMapInfo(String xcoord, String ycoord, String robotDirection, String exploreInfo, String obstacleInfo) {
 
         //Splitting the string by space - position of robot, direction and part 1 and part 2
-        List<String> robotInfo = Arrays.asList(Message.split("\\s+"));
+//        List<String> robotInfo = Arrays.asList(Message.split("\\s+"));
 
         //Setting position of robot
+//
+//        String xcoord = robotInfo.get(1);       //first 2 is the grid info
+//        Log.d(TAG, "xpos" + xcoord);
+//
+//        String ycoord = robotInfo.get(2);
+//        Log.d(TAG, "ypos" + ycoord);
+//
+//        String robotDirection = robotInfo.get(3);
+//        Log.d(TAG, "dir" + robotDirection);
 
-        String xcoord = robotInfo.get(1);       //first 2 is the grid info
-        Log.d(TAG, "xpos" + xcoord);
+        setRobotPosWithDir(Integer.parseInt(ycoord), Integer.parseInt(xcoord), robotDirection);
+//        setRobotPos(Integer.parseInt(ycoord), Integer.parseInt(xcoord));
 
-        String ycoord = robotInfo.get(2);
-        Log.d(TAG, "ypos" + ycoord);
-
-        String robotDirection = robotInfo.get(3);
-        Log.d(TAG, "dir" + robotDirection);
-
-        setRobotPosWithDir(Integer.parseInt(xcoord), Integer.parseInt(ycoord), Integer.parseInt(robotDirection));
 
         //Getting part 1 and part 2 of hex string
 
-        String exploreInfo = robotInfo.get(4);
-        Log.d(TAG, "part 1 hex" + exploreInfo);
-
-        String obstacleInfo = robotInfo.get(5);
-        Log.d(TAG, "part 2 hex" + obstacleInfo);
+//        String exploreInfo = robotInfo.get(4);
+//
+//        int n = 76;
+//        char[] chars = new char[n];
+//        Arrays.fill(chars, '1');
+//        String exploreInfo = new String(chars);
+//        Log.d(TAG, "part 1 hex" + exploreInfo);
+//
+//        String obstacleInfo = robotInfo.get(4);
+//        Log.d(TAG, "part 2 hex" + obstacleInfo);
 
 
         //Converting hex string to binary string
@@ -834,7 +862,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 //                        arena_maze[j]=4;
 //                         arena_maze[j / 15 + (280 -(20 * (j % 15)))] = 4;
-                        arena_maze[j / 15 + (20 * (j % 15))] = 4;
+//                        arena_maze[j / 15 + (20 * (j % 15))] = 4;
 
 
                     }else{
@@ -854,7 +882,9 @@ public class MainActivity extends Activity implements SensorEventListener {
             } catch (NumberFormatException e) {
 
             }
-            setRobotPosWithDir(Integer.parseInt(xcoord), Integer.parseInt(ycoord), Integer.parseInt(robotDirection));
+//            setRobotPos(Integer.parseInt(ycoord), Integer.parseInt(xcoord));
+
+            setRobotPosWithDir(Integer.parseInt(ycoord), Integer.parseInt(xcoord), robotDirection);
             Log.d(TAG, xcoord + " " + ycoord + " " + robotDirection);
             Log.d(TAG, "for loop");
 
