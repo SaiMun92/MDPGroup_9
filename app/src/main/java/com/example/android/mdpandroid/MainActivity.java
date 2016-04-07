@@ -479,7 +479,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             public void onClick(View v) {
                 sendMessage("e");
 //                String readMessage = "hex 2 2 90 FE007000F801C003800300000000000000000000000000000000000000000000000000000003 000080";
-//                decodeMapInfo(readMessage);
+//                decodeMapInfo("2", "2", "S","ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff" , "0403140010005100420104000FC018802081F8000000080001F820F804188020804100820100");
 
             }
         });
@@ -782,7 +782,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         setRobotPosWithDir(Integer.parseInt(ycoord), Integer.parseInt(xcoord), robotDirection);
 //        setRobotPos(Integer.parseInt(ycoord), Integer.parseInt(xcoord));
 
-
         //Getting part 1 and part 2 of hex string
 
 //        String exploreInfo = robotInfo.get(4);
@@ -862,7 +861,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 //                        arena_maze[j]=4;
 //                         arena_maze[j / 15 + (280 -(20 * (j % 15)))] = 4;
-//                        arena_maze[j / 15 + (20 * (j % 15))] = 4;
+                        arena_maze[j / 15 + (20 * (j % 15))] = 0;
 
 
                     }else{

@@ -149,15 +149,7 @@
                     android:text="explore"
                     />
 
-                <Button
-                    android:id="@+id/runButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Run"
-                    android:layout_below="@+id/explore"
-                    android:layout_alignParentRight="true"
-                    />
+
 
                 <Button
                     android:id="@+id/F1Button"
@@ -165,7 +157,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="F1"
-                    android:layout_below="@+id/runButton"
+                    android:layout_below="@+id/explore"
                     android:layout_alignParentRight="true"
                     />
 
@@ -176,6 +168,16 @@
                     android:layout_weight="1"
                     android:text="F2"
                     android:layout_below="@+id/F1Button"
+                    android:layout_alignParentRight="true"
+                    />
+
+                <Button
+                    android:id="@+id/runButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Run"
+                    android:layout_below="@+id/F2Button"
                     android:layout_alignParentRight="true"
                     />
             </RelativeLayout>
